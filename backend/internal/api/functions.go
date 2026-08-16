@@ -3,8 +3,8 @@ package api
 import (
 	"strconv"
 
-	"github.com/aceberg/WatchYourLAN/internal/gdb"
-	"github.com/aceberg/WatchYourLAN/internal/models"
+	"github.com/gbomacfly/WatchYourLAN/internal/gdb"
+	"github.com/gbomacfly/WatchYourLAN/internal/models"
 )
 
 func getHostByID(idStr string) (oneHost models.Host) {

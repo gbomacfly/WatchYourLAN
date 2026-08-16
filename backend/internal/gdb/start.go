@@ -13,9 +13,9 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
-	"github.com/aceberg/WatchYourLAN/internal/check"
-	"github.com/aceberg/WatchYourLAN/internal/conf"
-	"github.com/aceberg/WatchYourLAN/internal/models"
+	"github.com/gbomacfly/WatchYourLAN/internal/check"
+	"github.com/gbomacfly/WatchYourLAN/internal/conf"
+	"github.com/gbomacfly/WatchYourLAN/internal/models"
 )
 
 var db *gorm.DB

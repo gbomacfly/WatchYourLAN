@@ -1,7 +1,7 @@
 mod:
 	rm go.mod || true && \
 	rm go.sum || true && \
-	go mod init github.com/aceberg/WatchYourLAN && \
+	go mod init github.com/gbomacfly/WatchYourLAN && \
 	go mod tidy
 
 run:

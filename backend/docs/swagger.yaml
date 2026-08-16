@@ -96,7 +96,7 @@ definitions:
     type: object
 info:
   contact:
-    url: https://github.com/aceberg/WatchYourLAN
+    url: https://github.com/gbomacfly/WatchYourLAN
   description: Lightweight network IP scanner written in Go
   license:
     name: MIT

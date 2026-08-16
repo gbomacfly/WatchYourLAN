@@ -1,7 +1,7 @@
 // @title WatchYourLAN API
 // @version 0.1
 // @description Lightweight network IP scanner written in Go
-// @contact.url   https://github.com/aceberg/WatchYourLAN
+// @contact.url   https://github.com/gbomacfly/WatchYourLAN
 // @license.name  MIT
 // @license.url   https://opensource.org/licenses/MIT
 // @BasePath /api/
@@ -15,12 +15,12 @@ import (
 	// _ "net/http/pprof"
 
 	// Import Swagger docs
-	_ "github.com/aceberg/WatchYourLAN/docs"
+	_ "github.com/gbomacfly/WatchYourLAN/docs"
 
-	"github.com/aceberg/WatchYourLAN/internal/conf"
-	"github.com/aceberg/WatchYourLAN/internal/gdb"
-	"github.com/aceberg/WatchYourLAN/internal/routines"
-	"github.com/aceberg/WatchYourLAN/internal/web"
+	"github.com/gbomacfly/WatchYourLAN/internal/conf"
+	"github.com/gbomacfly/WatchYourLAN/internal/gdb"
+	"github.com/gbomacfly/WatchYourLAN/internal/routines"
+	"github.com/gbomacfly/WatchYourLAN/internal/web"
 )
 
 const dirPath = "/data/WatchYourLAN"

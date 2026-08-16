@@ -1,4 +1,4 @@
-module github.com/aceberg/WatchYourLAN
+module github.com/gbomacfly/WatchYourLAN
 
 go 1.25.1
 

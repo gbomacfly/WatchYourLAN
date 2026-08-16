@@ -4,7 +4,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/aceberg/WatchYourLAN/internal/models"
+	"github.com/gbomacfly/WatchYourLAN/internal/models"
 )
 
 // DNS - returns DNS names of a host

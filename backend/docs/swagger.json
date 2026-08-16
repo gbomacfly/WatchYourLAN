@@ -4,7 +4,7 @@
         "description": "Lightweight network IP scanner written in Go",
         "title": "WatchYourLAN API",
         "contact": {
-            "url": "https://github.com/aceberg/WatchYourLAN"
+            "url": "https://github.com/gbomacfly/WatchYourLAN"
         },
         "license": {
             "name": "MIT",

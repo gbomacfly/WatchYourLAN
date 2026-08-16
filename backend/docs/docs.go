@@ -10,7 +10,7 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "url": "https://github.com/aceberg/WatchYourLAN"
+            "url": "https://github.com/gbomacfly/WatchYourLAN"
         },
         "license": {
             "name": "MIT",

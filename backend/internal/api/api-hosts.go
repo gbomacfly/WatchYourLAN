@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/aceberg/WatchYourLAN/internal/check"
-	"github.com/aceberg/WatchYourLAN/internal/gdb"
-	"github.com/aceberg/WatchYourLAN/internal/models"
+	"github.com/gbomacfly/WatchYourLAN/internal/check"
+	"github.com/gbomacfly/WatchYourLAN/internal/gdb"
+	"github.com/gbomacfly/WatchYourLAN/internal/models"
 )
 
 // getAllHosts godoc

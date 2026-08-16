@@ -3,14 +3,14 @@ package routines
 import (
 	"time"
 
-	"github.com/aceberg/WatchYourLAN/internal/arp"
-	"github.com/aceberg/WatchYourLAN/internal/check"
-	"github.com/aceberg/WatchYourLAN/internal/conf"
-	"github.com/aceberg/WatchYourLAN/internal/gdb"
-	"github.com/aceberg/WatchYourLAN/internal/influx"
-	"github.com/aceberg/WatchYourLAN/internal/models"
-	"github.com/aceberg/WatchYourLAN/internal/notify"
-	"github.com/aceberg/WatchYourLAN/internal/prometheus"
+	"github.com/gbomacfly/WatchYourLAN/internal/arp"
+	"github.com/gbomacfly/WatchYourLAN/internal/check"
+	"github.com/gbomacfly/WatchYourLAN/internal/conf"
+	"github.com/gbomacfly/WatchYourLAN/internal/gdb"
+	"github.com/gbomacfly/WatchYourLAN/internal/influx"
+	"github.com/gbomacfly/WatchYourLAN/internal/models"
+	"github.com/gbomacfly/WatchYourLAN/internal/notify"
+	"github.com/gbomacfly/WatchYourLAN/internal/prometheus"
 )
 
 func startScan(quit chan bool) {
@@ -61,6 +61,14 @@ func compareHosts(foundHostsMap map[string]models.Host) {
 			aHost.IP = fHost.IP
 			aHost.Date = fHost.Date
 			aHost.Now = 1
+
+			// Keep Hardware in sync with arp-scan's current vendor lookup, so an
+			// updated OUI database (see internal/oui) actually improves already-known
+			// hosts too, not just newly discovered ones. Only overwrite when arp-scan
+			// found something - never blank out a previously resolved value.
+			if fHost.Hw != "" {
+				aHost.Hw = fHost.Hw
+			}
 
 			delete(foundHostsMap, aHost.Mac)
 

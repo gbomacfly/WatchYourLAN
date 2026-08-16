@@ -6,10 +6,10 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/aceberg/WatchYourLAN/internal/api"
-	"github.com/aceberg/WatchYourLAN/internal/check"
-	"github.com/aceberg/WatchYourLAN/internal/conf"
-	"github.com/aceberg/WatchYourLAN/internal/prometheus"
+	"github.com/gbomacfly/WatchYourLAN/internal/api"
+	"github.com/gbomacfly/WatchYourLAN/internal/check"
+	"github.com/gbomacfly/WatchYourLAN/internal/conf"
+	"github.com/gbomacfly/WatchYourLAN/internal/prometheus"
 	"github.com/gin-gonic/gin"
 )
 

@@ -16,7 +16,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/aceberg/WatchYourLAN/internal/check"
+	"github.com/gbomacfly/WatchYourLAN/internal/check"
 )
 
 // sourceURL - upstream, pre-converted copy of the IEEE OUI database

@@ -3,7 +3,7 @@ package routines
 import (
 	"time"
 
-	"github.com/aceberg/WatchYourLAN/internal/oui"
+	"github.com/gbomacfly/WatchYourLAN/internal/oui"
 )
 
 // OuiUpdate - fetch the current arp-scan MAC vendor database once at startup, then
