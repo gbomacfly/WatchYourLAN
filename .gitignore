@@ -2,3 +2,6 @@
 data/
 tmp/
 
+# Local secrets/config, use .env.example as template
+.env
+
