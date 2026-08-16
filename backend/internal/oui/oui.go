@@ -29,10 +29,13 @@ const sourceURL = "https://www.wireshark.org/download/automated/data/manuf"
 // targetPath - where arp-scan looks for it by default (see Dockerfile: apk add arp-scan)
 const targetPath = "/usr/share/arp-scan/ieee-oui.txt"
 
-// minValidLines - a real conversion produces tens of thousands of entries; bail out if we
-// got a lot less (e.g. an HTML error page or a truncated download), so we never clobber a
-// working file with garbage.
-const minValidLines = 30_000
+// minValidLines - a full, correctly-converted manuf file currently produces ~58,000
+// entries (verified against the working reference awk conversion). 30,000 used to be the
+// bar here, which is exactly why a silently-truncated ~51,000-line download (a real
+// incident, not hypothetical) sailed through undetected. Set well above any plausible
+// short-term shrink of the real database, but comfortably below the true count, so a
+// genuinely truncated/garbage response (HTML error page, half a file) still gets caught.
+const minValidLines = 55_000
 
 // httpClient - short-lived client just for this download
 var httpClient = &http.Client{Timeout: 30 * time.Second}
@@ -49,6 +52,10 @@ func Update() {
 	if check.IfError(err) {
 		return
 	}
+	// Some CDNs/WAFs serve a reduced or cached response to requests without a browser-like
+	// User-Agent (Go's http.Client sends "Go-http-client/1.1" by default). Look like curl,
+	// which is known to get the full file, to rule that out as a source of silent truncation.
+	req.Header.Set("User-Agent", "curl/8.0")
 
 	resp, err := httpClient.Do(req)
 	if check.IfError(err) {
@@ -66,6 +73,16 @@ func Update() {
 	if check.IfError(err) {
 		return
 	}
+
+	// A response that claims a Content-Length but delivers less (a truncated/reset
+	// connection that io.ReadAll didn't surface as an error) must not be treated as success.
+	if resp.ContentLength > 0 && int64(len(body)) != resp.ContentLength {
+		slog.Warn("Downloaded OUI database size doesn't match Content-Length, keeping existing one",
+			"content_length", resp.ContentLength, "got_bytes", len(body))
+		return
+	}
+
+	slog.Debug("Downloaded raw OUI source", "bytes", len(body))
 
 	converted, lines, err := convertManuf(body)
 	if err != nil {
