@@ -38,8 +38,8 @@ function TableRow(_props: any) {
 
   return (
     <tr class="border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
-      <td class="px-5 py-3 text-xs text-slate-400 tabular-nums">{_props.index}.</td>
-      <td class="px-5 py-3">
+      <td class="px-3.5 py-2 text-xs text-slate-400 tabular-nums">{_props.index}.</td>
+      <td class="px-3.5 py-2 whitespace-nowrap">
         <div class="flex items-center gap-2.5">
           <span class={"w-2 h-2 rounded-full shrink-0 " + (online ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600")} title={online ? "Online" : "Offline"}></span>
           <Show
@@ -51,14 +51,14 @@ function TableRow(_props: any) {
           </Show>
         </div>
       </td>
-      <td class="px-5 py-3 text-slate-500 dark:text-slate-400">{_props.host.Iface}</td>
-      <td class="px-5 py-3 font-mono text-slate-500 dark:text-slate-400">
+      <td class="px-3.5 py-2 text-slate-500 dark:text-slate-400">{_props.host.Iface}</td>
+      <td class="px-3.5 py-2 font-mono text-slate-500 dark:text-slate-400">
         <a href={"http://" + _props.host.IP} target="_blank" class="hover:text-brand-600 dark:hover:text-brand-400">{_props.host.IP}</a>
       </td>
-      <td class="px-5 py-3 font-mono text-slate-400 hidden md:table-cell">{_props.host.Mac}</td>
-      <td class="px-5 py-3 text-slate-400 hidden lg:table-cell" title={_props.host.Hw}>{_props.host.Hw.slice(0,12)+".."}</td>
-      <td class="px-5 py-3 text-slate-400 hidden xl:table-cell">{_props.host.Date}</td>
-      <td class="px-5 py-3">
+      <td class="px-3.5 py-2 font-mono text-slate-400 hidden md:table-cell">{_props.host.Mac}</td>
+      <td class="px-3.5 py-2 text-slate-400 hidden lg:table-cell" title={_props.host.Hw}>{_props.host.Hw.slice(0,12)+".."}</td>
+      <td class="px-3.5 py-2 text-slate-400 hidden xl:table-cell">{_props.host.Date}</td>
+      <td class="px-3.5 py-2">
         <button
           type="button"
           role="switch"
@@ -70,7 +70,7 @@ function TableRow(_props: any) {
           <span class={"inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform " + (known ? "translate-x-[18px]" : "translate-x-1")}></span>
         </button>
       </td>
-      <td class="px-5 py-3">
+      <td class="px-3.5 py-2">
         <Show
           when={online}
           fallback={<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">Offline</span>}
@@ -78,7 +78,7 @@ function TableRow(_props: any) {
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">Online</span>
         </Show>
       </td>
-      <td class="px-5 py-3 text-right">
+      <td class="px-3.5 py-2 text-right">
         <Show
           when={editNames()}
           fallback={

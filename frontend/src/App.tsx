@@ -19,7 +19,7 @@ function App() {
   return (
     <div class="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
       <Sidebar></Sidebar>
-      <main class="flex-1 px-6 sm:px-8 py-8 max-w-6xl">
+      <main class="flex-1 min-w-0 px-6 sm:px-8 py-8">
         <Router>
           <Route path="/" component={Body}/>
           <Route path="/config" component={Config}/>

@@ -33,9 +33,9 @@ function Body() {
 
   return (
     <div class="flex flex-col gap-6">
-      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
         <For each={tiles()}>{(tile) =>
-          <div class="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3">
+          <div class="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2.5">
             <div class={"text-2xl font-semibold tabular-nums " + tile.color}>{tile.value}</div>
             <div class="text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">{tile.label}</div>
           </div>
@@ -43,11 +43,11 @@ function Body() {
       </div>
 
       <div class="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
           <CardHead></CardHead>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <table class="min-w-full text-sm">
             <TableHead></TableHead>
             <tbody>
               <For each={allHosts}>{(host, index) =>
