@@ -7,7 +7,8 @@ services:
   #   ports:
   #   - 8850:8850
   wyl:
-    image: ghcr.io/gbomacfly/watchyourlan # GitHub Container Registry
+    image: aceberg/watchyourlan           # dockerhub
+    # image: ghcr.io/aceberg/watchyourlan # or github
     network_mode: "host"      
     restart: unless-stopped
     # uncomment those if you are using local node-bootstrap:
