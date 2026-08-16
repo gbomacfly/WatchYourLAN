@@ -1,7 +1,0 @@
-# Ignore local data
-data/
-tmp/
-
-# Local secrets/config, use .env.example as template
-.env
-
