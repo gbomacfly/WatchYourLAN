@@ -25,3 +25,4 @@ RUN apk add --no-cache arp-scan tzdata \
 COPY --from=builder /WatchYourLAN /app/
 
 ENTRYPOINT ["./WatchYourLAN"]
+# trigger test So 16. Aug 04:15:33 CEST 2026
