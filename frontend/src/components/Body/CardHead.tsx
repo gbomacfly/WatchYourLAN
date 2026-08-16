@@ -16,32 +16,47 @@ function CardHead() {
 
   const handleDel = async () => {
     const ids = selectedIDs();
-    
+
     for (let id of ids) {
       await apiDelHost(id);
     }
-    
+
     window.location.href = '/';
   };
 
   return (
-    <div class="row">
-      <div class="col-md mt-1 mb-1">
-        <div class="d-flex justify-left">
-        <Filter></Filter>
-        </div>
-      </div>
-      <div class="col-md mt-1 mb-1">
-        <div class="d-flex justify-content-between">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+      <Filter></Filter>
+      <div class="flex items-center gap-2 sm:ml-auto">
         <Search></Search>
         <Show
           when={editNames()}
-          fallback={<button class="btn btn-outline-primary" title="Toggle edit" onClick={[handleEditNames, true]}>Edit</button>}
+          fallback={
+            <button
+              title="Namen bearbeiten"
+              onClick={[handleEditNames, true]}
+              class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
+            >
+              Bearbeiten
+            </button>
+          }
         >
-          <button type="button" onClick={handleDel} title="Delete selected hosts" class="btn btn-outline-danger">Delete selected</button>
-          <button class="btn btn-primary" title="Toggle edit" onClick={[handleEditNames, false]}>Edit</button>
+          <button
+            type="button"
+            onClick={handleDel}
+            title="Ausgewählte Geräte löschen"
+            class="px-3 py-2 rounded-lg border border-red-200 dark:border-red-900/50 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 whitespace-nowrap"
+          >
+            Löschen
+          </button>
+          <button
+            onClick={[handleEditNames, false]}
+            title="Bearbeiten beenden"
+            class="px-3 py-2 rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 whitespace-nowrap"
+          >
+            Fertig
+          </button>
         </Show>
-        </div>
       </div>
     </div>
   )
