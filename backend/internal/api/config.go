@@ -25,6 +25,20 @@ func saveConfigHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, c.Request.Referer())
 }
 
+func setColorHandler(c *gin.Context) {
+	color := c.Param("color")
+
+	if color != "light" && color != "dark" && color != "system" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid color, expected light, dark or system"})
+		return
+	}
+
+	conf.AppConfig.Color = color
+	conf.Write(conf.AppConfig)
+
+	c.JSON(http.StatusOK, gin.H{"color": color})
+}
+
 func saveSettingsHandler(c *gin.Context) {
 
 	conf.AppConfig.LogLevel = c.PostForm("log")

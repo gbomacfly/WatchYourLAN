@@ -15,6 +15,14 @@ export const apiGetConfig = async () => {
   return res;
 };
 
+export const apiSetColor = async (color:string) => {
+
+  const url = apiPath+'/api/config/color/'+color;
+  const res = await (await fetch(url)).json();
+
+  return res;
+};
+
 export const apiGetVersion = async () => {
 
   const url = apiPath+'/api/version';

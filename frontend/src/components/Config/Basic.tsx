@@ -5,6 +5,7 @@ import { appConfig } from "../../functions/exports"
 function Basic() {
 
   const themes = ["cerulean", "cosmo", "cyborg", "darkly", "emerald", "flatly", "grass", "grayscale", "journal", "litera", "lumen", "lux", "materia", "minty", "morph", "ocean", "pulse", "quartz", "sand", "sandstone", "simplex", "sketchy", "slate", "solar", "spacelab", "superhero", "united", "vapor", "wood", "yeti", "zephyr"];
+  const colors = ["dark", "light", "system"];
 
   const handleTestNotify = () => {
     apiTestNotify();
@@ -44,17 +45,16 @@ function Basic() {
                <td>Color mode</td>
                <td>
                 <select name="color" class="form-select">
-                <Show
-                  when={appConfig().Color == "dark"}
-                  fallback={<>
-                    <option value="dark">dark</option>
-                    <option value="light" selected>light</option>
-                  </>}
-                >
-                  <option value="dark" selected>dark</option>
-                  <option value="light">light</option>
-                </Show>
+                <For each={colors}>{color =>
+                  <Show
+                    when={color == (appConfig().Color || "dark")}
+                    fallback={<option value={color}>{color}</option>}
+                  >
+                    <option value={color} selected>{color}</option>
+                  </Show>
+                }</For>
                 </select>
+                <div class="form-text">"system" follows your OS/browser setting automatically. You can also click the sun/moon icon in the top navbar to switch instantly.</div>
                </td>
             </tr>
             <tr>
