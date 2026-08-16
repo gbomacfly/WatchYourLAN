@@ -26,9 +26,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get version tag from env file
-        uses: c-py/action-dotenv-to-setenv@v5
-        with:
-          env-file: .version
+        run: cat .version >> "$GITHUB_ENV"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
