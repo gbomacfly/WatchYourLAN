@@ -8,14 +8,23 @@ services:
   watchyourlan:
     image: ghcr.io/gbomacfly/watchyourlan # GitHub Container Registry
     container_name: watchyourlan
-    network_mode: "host"
     restart: unless-stopped
     # uncomment those if you are using local node-bootstrap:
     # command: "-n http://YOUR_IP:8850"   # put your server IP or DNS name here
     # depends_on:
     #   - node-bootstrap
+    ports:
+    - "${PORT:-8840}:${PORT:-8840}"
     # dns:                                 # optional, e.g. a local Pi-hole/router, set DNS_IP in .env
     # - "${DNS_IP}"
+    # NET_ADMIN/NET_RAW replace 'network_mode: host', which arp-scan normally needs.
+    # Note: with bridge networking (the default here) the container only sees Docker's
+    # virtual network, not your LAN's physical interface. If device discovery comes up
+    # empty, switch IFACES to your host's real interface via a macvlan network, or fall
+    # back to 'network_mode: host' (see git history of this file for that variant).
+    cap_add:
+    - NET_ADMIN
+    - NET_RAW
     volumes:
     - ~/.dockerdata/watchyourlan:/data/WatchYourLAN
     env_file:
@@ -29,6 +38,3 @@ services:
       SHOUTRRR_URL: "${SHOUTRRR_URL:-}"  # optional, set url to notify
       THEME: "${THEME:-cyborg}"          # optional
       COLOR: "${COLOR:-system}"          # optional
-
-# WARNING! WYL needs 'host' network mode to work. So, WYL port will be exposed on the
-# host directly. You need to limit access to it with a firewall or other measures.

@@ -2,8 +2,15 @@ services:
   watchyourlan:
     image: ghcr.io/gbomacfly/watchyourlan # GitHub Container Registry
     container_name: watchyourlan
-    network_mode: "host"
     restart: unless-stopped
+    # NET_ADMIN/NET_RAW replace 'network_mode: host', which arp-scan normally needs.
+    # Note: with bridge networking (the default here) the container only sees Docker's
+    # virtual network, not your LAN's physical interface. If device discovery comes up
+    # empty, switch IFACES to your host's real interface via a macvlan network, or fall
+    # back to 'network_mode: host' and expose the port on the host directly instead.
+    cap_add:
+    - NET_ADMIN
+    - NET_RAW
     volumes:
     - ~/.dockerdata/watchyourlan:/data/WatchYourLAN
     env_file:
@@ -18,12 +25,9 @@ services:
       THEME: "${THEME:-cyborg}"          # optional
       COLOR: "${COLOR:-system}"          # optional
 
-# WARNING! WYL needs 'host' network mode to work. So, WYL port will be exposed on the
-# host directly. You need to limit access to it with a firewall or other measures.
-#
-# Because watchyourlan runs in host network mode, it's NOT reachable from forauth via
-# the service name on the shared Docker network - set WYL_HOST_IP in .env to the host's
-# actual IP or DNS name instead.
+# WARNING! ForAuth is the only externally exposed service here - it proxies to
+# watchyourlan over the internal Docker network, so requests are authenticated
+# before they ever reach WatchYourLAN itself.
 
   forauth:
     image: aceberg/forauth
@@ -38,7 +42,7 @@ services:
     - .env
     environment:
       TZ: "${TZ}"                    # required: needs your TZ for correct time
-      FA_TARGET: "${WYL_HOST_IP}:${PORT:-8840}" # put your server IP or DNS name here
+      FA_TARGET: "watchyourlan:${PORT:-8840}" # path to watchyourlan container:port, on the shared Docker network
       FA_AUTH: "true"                 # optional: true - enabled, default: false
       FA_AUTH_EXPIRE: 7d              # optional: expiration time, default: 7d
       FA_AUTH_PASSWORD: "${FA_AUTH_PASSWORD}"
