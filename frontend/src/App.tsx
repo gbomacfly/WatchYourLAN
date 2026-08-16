@@ -4,7 +4,7 @@ import './App.css';
 import { runAtStart } from './functions/atstart';
 
 import Body from './pages/Body';
-import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 
 function App() {
 
@@ -17,21 +17,17 @@ function App() {
   const HostPage = lazy(() => import("./pages/HostPage"));
 
   return (
-    <>
-    <Header></Header>
-    <div class="container-lg">
-      <div class="row">
-        <div class="col-md mt-4 mb-4">
-          <Router>
-            <Route path="/" component={Body}/>
-            <Route path="/config" component={Config}/>
-            <Route path="/history" component={History}/>
-            <Route path="/host/:id" component={HostPage}/>
-          </Router>
-        </div>
-      </div>
+    <div class="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
+      <Sidebar></Sidebar>
+      <main class="flex-1 px-6 sm:px-8 py-8 max-w-6xl">
+        <Router>
+          <Route path="/" component={Body}/>
+          <Route path="/config" component={Config}/>
+          <Route path="/history" component={History}/>
+          <Route path="/host/:id" component={HostPage}/>
+        </Router>
+      </main>
     </div>
-    </>
   )
 }
 
