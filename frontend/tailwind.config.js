@@ -1,6 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: 'class',
+  // Bootstrap/Bootswatch is still loaded dynamically for legacy pages (until they're
+  // migrated in later phases) and its stylesheet is inserted into the DOM *after*
+  // Tailwind's, so at equal CSS specificity it would otherwise win cascade ties
+  // (e.g. Bootstrap's plain `a { color: ...; text-decoration: underline; }` beating
+  // Tailwind's `.text-slate-600`). Force Tailwind utilities to always win while both
+  // systems coexist; safe to drop once Bootstrap is fully removed (Phase 5).
+  important: true,
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
