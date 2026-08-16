@@ -67,7 +67,11 @@ func Update() {
 		return
 	}
 
-	converted, lines := convertManuf(body)
+	converted, lines, err := convertManuf(body)
+	if err != nil {
+		slog.Warn("Failed to fully parse downloaded OUI database, keeping existing one", "error", err)
+		return
+	}
 
 	if lines < minValidLines {
 		slog.Warn("Converted OUI database looks too small, keeping existing one", "lines", lines)
@@ -128,10 +132,20 @@ func Update() {
 // kept using that short name, rather than dropped. Smaller/newer IEEE registrations often
 // only carry a short name in the manuf file - requiring a long name would silently lose
 // those vendors entirely instead of just showing a slightly less pretty name for them.
-func convertManuf(body []byte) (out []byte, lines int) {
+//
+// Returns an error if the scan stops before reaching the end of the input (e.g. a single
+// line exceeding bufio.Scanner's token limit, or a read error) - callers must treat that
+// as a failed conversion, not a shorter-but-valid one: bufio.Scanner silently stops on the
+// first error, which would otherwise produce a truncated file that still clears
+// minValidLines by chance and gets written out missing everything past that point.
+func convertManuf(body []byte) (out []byte, lines int, err error) {
 
 	var buf strings.Builder
 	scanner := bufio.NewScanner(strings.NewReader(string(body)))
+	// A handful of manuf lines run long (vendor names with extra detail); give the scanner
+	// plenty of headroom well beyond bufio.Scanner's 64KB default so none of them silently
+	// truncate the scan.
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -188,5 +202,9 @@ func convertManuf(body []byte) (out []byte, lines int) {
 		lines++
 	}
 
-	return []byte(buf.String()), lines
+	if scanErr := scanner.Err(); scanErr != nil {
+		return nil, 0, scanErr
+	}
+
+	return []byte(buf.String()), lines, nil
 }
