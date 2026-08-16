@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+> [!NOTE]
+> This is [gbomacfly/WatchYourLAN](https://github.com/gbomacfly/WatchYourLAN), a fork of [aceberg/WatchYourLAN](https://github.com/aceberg/WatchYourLAN). Entries from `v2.1.4` and earlier are upstream's original history. Everything under **Fork** below is specific to this repo.
+
+## [Fork] - unreleased
+### Added
+- Tailwind CSS-based UI redesign: fixed sidebar layout, stat tiles, dark/light/system color mode toggle (phased rollout, in progress)
+- `Group` field on hosts, plus `GET /api/group/:id/:name` and `GET /api/groups` API endpoints (UI wiring in progress)
+- Automatic download and weekly refresh of arp-scan's MAC vendor database (`ieee-oui.txt`), see [FAQ.md](FAQ.md)
+- `.env`-based configuration for `docker-compose.yml` / `docker-compose-auth.yml`, with `.env.example` as a template
+
+### Changed
+- Docker images published to `ghcr.io/gbomacfly/watchyourlan` via this repo's own GitHub Actions workflow, instead of upstream's Docker Hub / GHCR images
+- Go module renamed from `github.com/aceberg/WatchYourLAN` to `github.com/gbomacfly/WatchYourLAN`
+- `COLOR` config gained a `system` option, in addition to `light`/`dark`
+- `docker-compose.yml` volumes now default to `./data` next to the compose file, instead of `~/.dockerdata`
+
+### Fixed
+- Hardware/vendor field was only ever set on a host's first discovery and never refreshed on later scans, even after the MAC vendor database improved. It's now refreshed on every scan.
+
 ## [v2.1.4] - 2025-09-10
 ### Added
 - Swagger API docs (`/swagger/index.html`)

@@ -1,5 +1,5 @@
 PKG_NAME=WatchYourLAN
-USR_NAME=aceberg
+USR_NAME=gbomacfly
 
 build:
 	npm run build && \
