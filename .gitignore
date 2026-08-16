@@ -1,6 +1,7 @@
 # Ignore local data
 data/
 tmp/
+/oui/
 
 # Local secrets/config, use .env.example as template
 .env

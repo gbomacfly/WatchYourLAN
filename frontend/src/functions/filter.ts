@@ -1,4 +1,4 @@
-import { allHosts, bkpHosts, Host, setAllHosts } from "./exports";
+import { allHosts, bkpHosts, Host, setAllHosts, setActiveFilter } from "./exports";
 
 let oldFilter = 'ID';
 
@@ -20,6 +20,7 @@ export function filterFunc(field: keyof Host, value: any) {
 
   localStorage.setItem("filterField", field);
   localStorage.setItem("filterValue", value);
+  setActiveFilter({ field, value });
 
   switch (field) {
     case 'Iface':
@@ -30,6 +31,9 @@ export function filterFunc(field: keyof Host, value: any) {
       break;
     case 'Now':
       addrsArray = addrsArray.filter((item) => item.Now == value);
+      break;
+    case 'Group':
+      addrsArray = addrsArray.filter((item) => item.Group == value);
       break;
     default:
       addrsArray = bkpHosts();

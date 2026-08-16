@@ -1,14 +1,17 @@
-import { Show } from "solid-js";
-import { editNames, selectedIDs, setEditNames } from "../../functions/exports";
+import { createSignal, For, Show } from "solid-js";
+import { editNames, groups, selectedIDs, setEditNames } from "../../functions/exports";
 import Filter from "../Filter";
 import Search from "../Search";
 import { getHosts } from "../../functions/atstart";
-import { apiDelHost } from "../../functions/api";
+import { apiDelHost, apiSetGroup } from "../../functions/api";
 
 function CardHead() {
 
+  const [groupInput, setGroupInput] = createSignal("");
+
   const handleEditNames = (toggle: boolean) => {
     if (!toggle) {
+      setGroupInput("");
       getHosts();
     }
     setEditNames(toggle);
@@ -22,6 +25,22 @@ function CardHead() {
     }
 
     window.location.href = '/';
+  };
+
+  const handleSetGroup = async () => {
+    const ids = selectedIDs();
+    const group = groupInput().trim();
+
+    if (ids.length === 0) {
+      return;
+    }
+
+    for (let id of ids) {
+      await apiSetGroup(id, group);
+    }
+
+    setGroupInput("");
+    await getHosts();
   };
 
   return (
@@ -41,6 +60,27 @@ function CardHead() {
             </button>
           }
         >
+          <input
+            type="text"
+            list="group-suggestions"
+            value={groupInput()}
+            onInput={e => setGroupInput((e.target as HTMLInputElement).value)}
+            placeholder="Gruppe..."
+            title="Gruppe für ausgewählte Geräte (leer lassen zum Entfernen)"
+            class="px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm w-32"
+          />
+          <datalist id="group-suggestions">
+            <For each={groups()}>{(group) => <option value={group} />}</For>
+          </datalist>
+          <button
+            type="button"
+            onClick={handleSetGroup}
+            disabled={selectedIDs().length === 0}
+            title="Gruppe für ausgewählte Geräte setzen"
+            class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Gruppe zuweisen
+          </button>
           <button
             type="button"
             onClick={handleDel}

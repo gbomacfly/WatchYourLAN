@@ -12,6 +12,7 @@ export interface Host {
 	Date:  string;
 	Known: number;
 	Now:   number;
+	Group: string;
 };
 
 export interface Conf {
@@ -52,6 +53,7 @@ export const emptyHost:Host = {
 	Date:  "",
 	Known: 0,
 	Now:   0,
+	Group: "",
 };
 
 export const emptyConf:Conf = {
@@ -83,6 +85,11 @@ export const [allHosts, setAllHosts] = createStore<Host[]>([]);
 export const [bkpHosts, setBkpHosts] = createSignal<Host[]>([]);
 
 export const [ifaces, setIfaces] = createSignal<string[]>([]);
+export const [groups, setGroups] = createSignal<string[]>([]);
+
+// Tracks whatever filter is currently applied (via the Filter selects or the Sidebar's
+// group list), so both can reflect/highlight the same state regardless of where it was set.
+export const [activeFilter, setActiveFilter] = createSignal<{ field: string, value: any }>({ field: "ID", value: 0 });
 
 export const [appConfig, setAppConfig] = createSignal<Conf>(emptyConf);
 

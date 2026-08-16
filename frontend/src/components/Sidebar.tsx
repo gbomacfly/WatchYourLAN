@@ -1,6 +1,7 @@
-import { createSignal, onCleanup, onMount } from "solid-js";
-import { appConfig, setAppConfig } from "../functions/exports";
+import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { activeFilter, appConfig, groups, setAppConfig, setHistUpdOnFilter } from "../functions/exports";
 import { apiGetConfig, apiSetColor } from "../functions/api";
+import { filterFunc } from "../functions/filter";
 
 type ColorMode = "light" | "dark" | "system";
 
@@ -105,10 +106,49 @@ function Sidebar() {
         </a>
       </nav>
 
-      {/* Groups placeholder — wired up to real data in a later phase */}
       <div class="px-3 mt-2">
         <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">Gruppen</div>
-        <div class="px-3 py-2 text-xs text-slate-400 dark:text-slate-500 italic">folgt in Kürze</div>
+        <Show when={groups().length > 0} fallback={
+          <div class="px-3 py-2 text-xs text-slate-400 dark:text-slate-500 italic">Keine Gruppen</div>
+        }>
+          <div class="space-y-0.5">
+            <a
+              href="/"
+              class={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm no-underline ${
+                activeFilter().field === "ID"
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                filterFunc("ID", 0);
+                setHistUpdOnFilter(true);
+              }}
+            >
+              Alle
+            </a>
+            <For each={groups()}>
+              {(group) => (
+                <a
+                  href="/"
+                  class={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm no-underline truncate ${
+                    activeFilter().field === "Group" && activeFilter().value === group
+                      ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
+                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
+                  title={group}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    filterFunc("Group", group);
+                    setHistUpdOnFilter(true);
+                  }}
+                >
+                  {group}
+                </a>
+              )}
+            </For>
+          </div>
+        </Show>
       </div>
 
       <div class="mt-auto p-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">

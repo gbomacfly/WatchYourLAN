@@ -45,6 +45,14 @@ export const apiEditHost = async (id:number, name:string, known:string) => {
   return res;
 };
 
+export const apiSetGroup = async (id:number, group:string) => {
+
+  const url = apiPath+'/api/group/'+id+'/'+encodeURIComponent(group);
+  const res = await (await fetch(url)).json();
+
+  return res;
+};
+
 export const apiGetHost = async (id:string) => {
 
   const url = apiPath+'/api/host/'+id;
