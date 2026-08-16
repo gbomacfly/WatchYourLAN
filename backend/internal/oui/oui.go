@@ -2,39 +2,45 @@
 //
 // The file baked into the arp-scan Alpine package goes stale over time, which shows up
 // as more and more devices with an "(Unknown: locally administered)" or blank Hardware
-// field. Instead of asking users to download and mount this file by hand, we fetch an
-// already-converted copy from the arp-scan project itself (which maintains it in exactly
-// the format arp-scan expects, sourced from IEEE's public registry) and drop it in place
-// on a schedule.
+// field. Instead of asking users to download and mount this file by hand, we fetch
+// Wireshark's manuf database (which tracks the IEEE registries and includes vendor long
+// names arp-scan's own upstream copy often lacks, e.g. "FRITZ! Technology GmbH" instead
+// of a blank/generic AVM entry) and convert it into the format arp-scan expects.
 package oui
 
 import (
+	"bufio"
 	"io"
 	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gbomacfly/WatchYourLAN/internal/check"
 )
 
-// sourceURL - upstream, pre-converted copy of the IEEE OUI database
-const sourceURL = "https://raw.githubusercontent.com/royhills/arp-scan/master/ieee-oui.txt"
+// sourceURL - Wireshark's manuf database (prefix + short + long vendor name), rebuilt
+// from the IEEE MA-L/MA-M/MA-S registries and kept current by the Wireshark project.
+const sourceURL = "https://www.wireshark.org/download/automated/data/manuf"
 
 // targetPath - where arp-scan looks for it by default (see Dockerfile: apk add arp-scan)
 const targetPath = "/usr/share/arp-scan/ieee-oui.txt"
 
-// minValidSize - a real ieee-oui.txt is several MB; bail out if we got something much
-// smaller (e.g. an HTML error page), so we never clobber a working file with garbage
-const minValidSize = 100_000
+// minValidLines - a real conversion produces tens of thousands of entries; bail out if we
+// got a lot less (e.g. an HTML error page or a truncated download), so we never clobber a
+// working file with garbage.
+const minValidLines = 30_000
 
 // httpClient - short-lived client just for this download
 var httpClient = &http.Client{Timeout: 30 * time.Second}
 
-// Update - download the latest ieee-oui.txt and atomically replace the one arp-scan uses.
-// Never fatal: on any failure it logs a warning and leaves the existing file (the one
-// shipped in the arp-scan package, or whatever was fetched last time) untouched.
+// Update - download the latest manuf database, convert it to arp-scan's ieee-oui.txt
+// format, and atomically replace the file arp-scan uses. Never fatal: on any failure it
+// logs a warning and leaves the existing file (the one shipped in the arp-scan package,
+// or whatever was fetched last time) untouched.
 func Update() {
 
 	slog.Info("Updating arp-scan MAC vendor database", "url", sourceURL)
@@ -61,8 +67,10 @@ func Update() {
 		return
 	}
 
-	if len(body) < minValidSize {
-		slog.Warn("Downloaded OUI database looks too small, keeping existing one", "bytes", len(body))
+	converted, lines := convertManuf(body)
+
+	if lines < minValidLines {
+		slog.Warn("Converted OUI database looks too small, keeping existing one", "lines", lines)
 		return
 	}
 
@@ -78,7 +86,7 @@ func Update() {
 	tmpPath := tmpFile.Name()
 	defer os.Remove(tmpPath) // no-op once the rename below succeeds
 
-	if _, err = tmpFile.Write(body); check.IfError(err) {
+	if _, err = tmpFile.Write(converted); check.IfError(err) {
 		tmpFile.Close()
 		return
 	}
@@ -94,5 +102,76 @@ func Update() {
 		return
 	}
 
-	slog.Info("OUI vendor database updated", "path", targetPath, "bytes", len(body))
+	slog.Info("OUI vendor database updated", "path", targetPath, "lines", lines)
+}
+
+// convertManuf converts Wireshark's manuf file into arp-scan's ieee-oui.txt format:
+// one entry per line, "<hex prefix><TAB><vendor name>". Mirrors the awk conversion:
+//
+//	awk -F'\t' '
+//	!/^#/ && NF>=3 {
+//	  addr=$1
+//	  prefixlen=24
+//	  if (addr ~ /\//) {
+//	    split(addr, parts, "/")
+//	    addr=parts[1]
+//	    prefixlen=parts[2]+0
+//	  }
+//	  gsub(":", "", addr)
+//	  hexlen=prefixlen/4
+//	  print substr(addr, 1, hexlen) "\t" $3
+//	}'
+//
+// Only lines with a long vendor name (the 3rd tab-separated field) are kept, since that's
+// the field arp-scan displays - the same reason a plain "AVM" line without one is skipped
+// in favor of the fuller "FRITZ! Technology GmbH" entry.
+func convertManuf(body []byte) (out []byte, lines int) {
+
+	var buf strings.Builder
+	scanner := bufio.NewScanner(strings.NewReader(string(body)))
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		fields := strings.Split(line, "\t")
+		if len(fields) < 3 {
+			continue
+		}
+
+		addr := fields[0]
+		prefixLen := 24
+
+		if idx := strings.Index(addr, "/"); idx != -1 {
+			parsed, err := strconv.Atoi(addr[idx+1:])
+			if err != nil {
+				continue
+			}
+			addr = addr[:idx]
+			prefixLen = parsed
+		}
+
+		addr = strings.ReplaceAll(addr, ":", "")
+
+		hexLen := prefixLen / 4
+		if hexLen <= 0 || hexLen > len(addr) {
+			continue
+		}
+
+		vendor := strings.TrimSpace(fields[2])
+		if vendor == "" {
+			continue
+		}
+
+		buf.WriteString(addr[:hexLen])
+		buf.WriteByte('\t')
+		buf.WriteString(vendor)
+		buf.WriteByte('\n')
+		lines++
+	}
+
+	return []byte(buf.String()), lines
 }

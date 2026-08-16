@@ -7,8 +7,8 @@ All notable changes to this project will be documented in this file.
 ## [Fork] - unreleased
 ### Added
 - Tailwind CSS-based UI redesign: fixed sidebar layout, stat tiles, dark/light/system color mode toggle (phased rollout, in progress)
-- `Group` field on hosts, plus `GET /api/group/:id/:name` and `GET /api/groups` API endpoints (UI wiring in progress)
-- Automatic download and weekly refresh of arp-scan's MAC vendor database (`ieee-oui.txt`), see [FAQ.md](FAQ.md)
+- `Group` field on hosts, plus `GET /api/group/:id/:name` and `GET /api/groups` API endpoints, wired into the Sidebar (group filter) and edit mode (assign group to selected hosts)
+- Automatic download and weekly refresh of a MAC vendor database (`ieee-oui.txt`) converted from Wireshark's `manuf` file, which includes fuller vendor names than arp-scan's own upstream copy, see [FAQ.md](FAQ.md)
 - `.env`-based configuration for `docker-compose.yml` / `docker-compose-auth.yml`, with `.env.example` as a template
 
 ### Changed

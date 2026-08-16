@@ -100,7 +100,7 @@ Configuration can be done through config file, GUI or environment variables. Var
 | PG_CONNECT | Address to connect to PostgreSQL. (Example: `postgres://username:password@192.168.0.1:5432/dbname?sslmode=disable`). Full list of URL parameters [here](https://pkg.go.dev/github.com/lib/pq#hdr-Connection_String_Parameters) | |
 
 > [!NOTE]
-> This fork automatically downloads and refreshes arp-scan's MAC vendor database (`ieee-oui.txt`) on startup and weekly after that, so Hardware/vendor names stay current without any manual setup. See [FAQ.md](FAQ.md) for details and how to override it with your own file.
+> This fork automatically downloads Wireshark's MAC vendor database, converts it into arp-scan's `ieee-oui.txt` format, and refreshes it weekly, so Hardware/vendor names stay current (and fuller than arp-scan's own upstream copy) without any manual setup. See [FAQ.md](FAQ.md) for details and how to override it with your own file.
 
 ### InfluxDB2 config
 This config matches Grafana's config for InfluxDB data source

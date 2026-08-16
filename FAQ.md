@@ -5,10 +5,10 @@
 
 ## MAC vendor names are outdated or missing (`(Unknown: ...)`)
 
-This fork downloads a current copy of arp-scan's MAC vendor database (`ieee-oui.txt`) automatically on startup, and refreshes it once a week - no manual steps needed. Check the container log for a line like:
+This fork downloads Wireshark's `manuf` vendor database automatically on startup, converts it into the format arp-scan expects (`ieee-oui.txt`), and refreshes it once a week - no manual steps needed. Wireshark's database is used instead of arp-scan's own upstream copy because it tends to carry fuller vendor long names (e.g. AVM/FritzBox devices show up as "FRITZ! Technology GmbH" instead of an unrecognized/blank entry). Check the container log for a line like:
 ```
-INFO Updating arp-scan MAC vendor database url=https://raw.githubusercontent.com/royhills/arp-scan/master/ieee-oui.txt
-INFO OUI vendor database updated path=/usr/share/arp-scan/ieee-oui.txt bytes=1649021
+INFO Updating arp-scan MAC vendor database url=https://www.wireshark.org/download/automated/data/manuf
+INFO OUI vendor database updated path=/usr/share/arp-scan/ieee-oui.txt lines=38512
 ```
 If it's missing, the container likely has no outbound internet access - the last vendor database it had (baked into the image, or a previously downloaded one) keeps being used, nothing breaks.
 
