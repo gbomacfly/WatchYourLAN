@@ -19,7 +19,7 @@ FROM alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache arp-scan tzdata curl \
+RUN apk add --no-cache arp-scan tzdata curl gawk \
     && mkdir /data
 
 COPY --from=builder /WatchYourLAN /app/

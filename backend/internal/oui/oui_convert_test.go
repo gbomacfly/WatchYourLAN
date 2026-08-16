@@ -1,18 +1,25 @@
 package oui
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
 
+// TestConvertManuf checks that convertManuf (the Go mirror kept only for fast unit
+// coverage - Update() itself shells out to the real awkScript, not this) matches awk's
+// actual, sometimes-surprising semantics: NF>=3 is a strict requirement (no short-name
+// fallback), case is left as-is (no forced uppercase), and substr() clamps rather than
+// erroring when asked for more hex digits than the address actually has.
 func TestConvertManuf(t *testing.T) {
 	sample := strings.Join([]string{
 		"# This is a comment, must be ignored",
 		"00:00:00\tXEROX\tXEROX CORPORATION",
 		"38:83:45\tAvmAudio\tFRITZ! Technology GmbH",
-		"00:00:0F\tNEXTPUBL\t",   // trailing empty 3rd field -> falls back to short name
-		"8C:A6:82:70/28\tAHSEET", // real manuf format for MA-M blocks: short (4-octet) address + only a short name
-		"00:1A:2B/28\tShort\tSome Vendor With A Slash Prefix",
+		"00:00:0F\tNEXTPUBL\t",                                                     // empty 3rd field still counts as NF==3 in awk -> kept, empty vendor
+		"8C:A6:82:70/28\tAnhuiseekere\tAnhui seeker electronic technology Co.,LTD", // real manuf line for the reported MAC
+		"8C:A6:82:80/28\tSchok",                                                    // a genuine 2-field (no long name at all) line -> NF==2 -> dropped, matching awk
+		"00:1A:2B/28\tShort\tSome Vendor With A Slash Prefix",                      // address shorter than the prefix needs -> clamped, not dropped
 		"garbageline-not-enough-fields",
 		"",
 	}, "\n")
@@ -24,8 +31,8 @@ func TestConvertManuf(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if lines != 4 {
-		t.Fatalf("expected 4 converted lines, got %d:\n%s", lines, got)
+	if lines != 5 {
+		t.Fatalf("expected 5 converted lines, got %d:\n%s", lines, got)
 	}
 
 	if !strings.Contains(got, "000000\tXEROX CORPORATION\n") {
@@ -36,23 +43,25 @@ func TestConvertManuf(t *testing.T) {
 		t.Errorf("missing/incorrect FRITZ! line (the exact bug being fixed), got:\n%s", got)
 	}
 
-	if !strings.Contains(got, "00000F\tNEXTPUBL\n") {
-		t.Errorf("expected fallback to the short name when the long-name field is empty, got:\n%s", got)
+	if !strings.Contains(got, "00000F\t\n") {
+		t.Errorf("expected a kept line with an empty vendor (NF==3 with an empty 3rd field), got:\n%s", got)
 	}
 
-	// The real report that prompted this fallback: a MAC (8c:a6:82:71:54:9f) whose IEEE
-	// MA-M registration only had a short name in the manuf file, so it was silently dropped
-	// before this fix instead of showing up with at least the short vendor name.
-	if !strings.Contains(got, "8CA6827\tAHSEET\n") {
-		t.Errorf("expected fallback to the short name when there's no 3rd field at all, got:\n%s", got)
+	// The actual real-world report: 8c:a6:82:71:54:9f showed "(Unknown)" instead of this.
+	if !strings.Contains(got, "8CA6827\tAnhui seeker electronic technology Co.,LTD\n") {
+		t.Errorf("missing/incorrect Anhui line (the real MA-M block from the bug report), got:\n%s", got)
 	}
 
-	// 00:1A:2B/28 -> strip colons "001A2B", prefixlen 28 -> hexlen 7. "001A2B" is only 6 hex
-	// chars (24 bits); a /28 prefix needs 7 hex chars (28 bits), which this address literally
-	// doesn't have enough digits for - convertManuf must skip it rather than reading out of
-	// bounds or emitting a truncated/garbage prefix.
-	if strings.Contains(got, "Some Vendor With A Slash Prefix") {
-		t.Errorf("expected the too-short /28 address to be skipped, got:\n%s", got)
+	if strings.Contains(got, "Schok") {
+		t.Errorf("expected the 2-field (no long name at all) line to be dropped, matching awk's NF>=3, got:\n%s", got)
+	}
+
+	// 00:1A:2B/28 -> strip colons "001A2B" (6 hex chars, 24 bits). A /28 prefix asks for 7
+	// hex chars (28 bits), which this address doesn't have - awk's substr(addr, 1, 7) on a
+	// 6-char string just returns those 6 chars rather than erroring, so this must be kept
+	// as "001A2B", not dropped.
+	if !strings.Contains(got, "001A2B\tSome Vendor With A Slash Prefix\n") {
+		t.Errorf("expected the too-short /28 address to be clamped (not dropped), got:\n%s", got)
 	}
 }
 
@@ -76,20 +85,31 @@ func TestConvertManufSlashPrefixWithinBounds(t *testing.T) {
 	}
 }
 
-// TestConvertManufReportsScanErrors is a regression test for the actual bug behind a real
-// report: a MAC (8c:a6:82:71:54:9f) resolved correctly right after a fresh download, but
-// went back to "(Unknown)" after the next automatic refresh - with no error in the logs.
-// bufio.Scanner silently stops (without an error!) once a single line exceeds its token
-// limit, which used to leave convertManuf returning a shorter-but-still-"valid" (>minValidLines)
-// file that got written out missing everything past the oversized line. This asserts the
-// scan surfaces that failure as an error instead of a silent truncation.
-func TestConvertManufReportsScanErrors(t *testing.T) {
-	// One line far larger than bufio.Scanner's original 64KB default token size.
-	oversized := strings.Repeat("A", 2*1024*1024)
-	sample := "00:00:00\tXEROX\tXEROX CORPORATION\n" + oversized + "\n00:00:01\tFOO\tFOO CORP\n"
+func TestCountLines(t *testing.T) {
+	dir := t.TempDir()
 
-	_, _, err := convertManuf([]byte(sample))
-	if err == nil {
-		t.Fatalf("expected an error for a line exceeding the scanner buffer, got nil")
+	cases := []struct {
+		name    string
+		content string
+		want    int
+	}{
+		{"empty", "", 0},
+		{"trailing newline", "a\nb\nc\n", 3},
+		{"no trailing newline", "a\nb\nc", 3},
+		{"single line no newline", "a", 1},
+	}
+
+	for _, c := range cases {
+		path := dir + "/" + c.name
+		if err := os.WriteFile(path, []byte(c.content), 0o644); err != nil {
+			t.Fatalf("%s: setup failed: %v", c.name, err)
+		}
+		got, err := countLines(path)
+		if err != nil {
+			t.Fatalf("%s: unexpected error: %v", c.name, err)
+		}
+		if got != c.want {
+			t.Errorf("%s: countLines() = %d, want %d", c.name, got, c.want)
+		}
 	}
 }
