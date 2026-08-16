@@ -19,6 +19,7 @@ import (
 
 	"github.com/gbomacfly/WatchYourLAN/internal/conf"
 	"github.com/gbomacfly/WatchYourLAN/internal/gdb"
+	"github.com/gbomacfly/WatchYourLAN/internal/oui"
 	"github.com/gbomacfly/WatchYourLAN/internal/routines"
 	"github.com/gbomacfly/WatchYourLAN/internal/web"
 )
@@ -44,6 +45,13 @@ func main() {
 	conf.Start(*dirPtr, *nodePtr)
 
 	gdb.Start()
+
+	// Blocking on purpose: makes sure the very first scan (started right below) already
+	// uses a fresh vendor database, instead of racing this download in the background
+	// and possibly overwriting correct Hardware values with stale ones. Bounded by
+	// oui.Update()'s own 30s HTTP timeout, so a slow/unreachable network only delays
+	// startup briefly - it never blocks it indefinitely or fails startup outright.
+	oui.Update()
 
 	routines.ScanRestart()
 	routines.HistoryTrim()
