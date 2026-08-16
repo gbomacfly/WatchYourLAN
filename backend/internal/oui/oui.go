@@ -10,10 +10,11 @@ package oui
 
 import (
 	"bufio"
-	"io"
+	"bytes"
+	"context"
 	"log/slog"
-	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -37,51 +38,38 @@ const targetPath = "/usr/share/arp-scan/ieee-oui.txt"
 // genuinely truncated/garbage response (HTML error page, half a file) still gets caught.
 const minValidLines = 55_000
 
-// httpClient - short-lived client just for this download
-var httpClient = &http.Client{Timeout: 30 * time.Second}
+// downloadTimeout - how long the curl download is allowed to take before we give up.
+const downloadTimeout = 30 * time.Second
 
 // Update - download the latest manuf database, convert it to arp-scan's ieee-oui.txt
 // format, and atomically replace the file arp-scan uses. Never fatal: on any failure it
 // logs a warning and leaves the existing file (the one shipped in the arp-scan package,
 // or whatever was fetched last time) untouched.
+//
+// Fetches with the external curl binary rather than Go's net/http: confirmed side by side
+// against this exact URL, curl reliably returns the full ~58,000-line manuf file while
+// Go's http.Client - even with a curl-matching User-Agent - reproducibly came back with
+// only ~51,000 lines every time. Whatever the root cause on the server/CDN side, curl is
+// what's actually proven to work here, so use it instead of chasing net/http further.
 func Update() {
 
 	slog.Info("Updating arp-scan MAC vendor database", "url", sourceURL)
 
-	req, err := http.NewRequest(http.MethodGet, sourceURL, nil)
-	if check.IfError(err) {
-		return
-	}
-	// Some CDNs/WAFs serve a reduced or cached response to requests without a browser-like
-	// User-Agent (Go's http.Client sends "Go-http-client/1.1" by default). Look like curl,
-	// which is known to get the full file, to rule that out as a source of silent truncation.
-	req.Header.Set("User-Agent", "curl/8.0")
+	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
+	defer cancel()
 
-	resp, err := httpClient.Do(req)
-	if check.IfError(err) {
-		slog.Warn("Could not reach OUI source, keeping existing vendor database")
-		return
-	}
-	defer resp.Body.Close()
+	cmd := exec.CommandContext(ctx, "curl", "-fsSL", sourceURL)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 
-	if resp.StatusCode != http.StatusOK {
-		slog.Warn("Unexpected response fetching OUI database, keeping existing one", "status", resp.StatusCode)
+	if err := cmd.Run(); err != nil {
+		slog.Warn("Could not download OUI source, keeping existing vendor database",
+			"error", err, "stderr", strings.TrimSpace(stderr.String()))
 		return
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if check.IfError(err) {
-		return
-	}
-
-	// A response that claims a Content-Length but delivers less (a truncated/reset
-	// connection that io.ReadAll didn't surface as an error) must not be treated as success.
-	if resp.ContentLength > 0 && int64(len(body)) != resp.ContentLength {
-		slog.Warn("Downloaded OUI database size doesn't match Content-Length, keeping existing one",
-			"content_length", resp.ContentLength, "got_bytes", len(body))
-		return
-	}
-
+	body := stdout.Bytes()
 	slog.Debug("Downloaded raw OUI source", "bytes", len(body))
 
 	converted, lines, err := convertManuf(body)

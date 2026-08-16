@@ -19,10 +19,9 @@ FROM alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache arp-scan tzdata \
+RUN apk add --no-cache arp-scan tzdata curl \
     && mkdir /data
 
 COPY --from=builder /WatchYourLAN /app/
 
 ENTRYPOINT ["./WatchYourLAN"]
-# trigger test So 16. Aug 04:15:33 CEST 2026
