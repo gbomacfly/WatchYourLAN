@@ -17,11 +17,11 @@ services:
     # dns:                                 # optional, e.g. a local Pi-hole/router, set DNS_IP in .env
     # - "${DNS_IP}"
     volumes:
-    - ~/.dockerdata/watchyourlan:/data/WatchYourLAN
+    - ./data:/data/WatchYourLAN
     env_file:
     - .env
     environment:
-      TZ: "${TZ}"                  # required: needs your TZ for correct time
+      TZ: "${TZ:-Europe/Berlin}"   # optional, default: Europe/Berlin
       IFACES: "${IFACES}"          # required: 1 or more interface, space separated
       HOST: "${HOST:-0.0.0.0}"           # optional, default: 0.0.0.0
       PORT: "${PORT:-8840}"              # optional, default: 8840

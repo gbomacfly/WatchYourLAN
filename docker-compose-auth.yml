@@ -5,11 +5,11 @@ services:
     network_mode: "host"
     restart: unless-stopped
     volumes:
-    - ~/.dockerdata/watchyourlan:/data/WatchYourLAN
+    - ./data/WatchYourLAN:/data/WatchYourLAN
     env_file:
     - .env
     environment:
-      TZ: "${TZ}"                  # required: needs your TZ for correct time
+      TZ: "${TZ:-Europe/Berlin}"   # optional, default: Europe/Berlin
       IFACES: "${IFACES}"          # required: 1 or more interface, space separated
       HOST: "${HOST:-0.0.0.0}"           # optional, default: 0.0.0.0
       PORT: "${PORT:-8840}"              # optional, default: 8840
@@ -33,7 +33,7 @@ services:
     - 8800:8800 # Proxy port
     - 8801:8801 # Config port
     volumes:
-    - ~/.dockerdata/forauth:/data/ForAuth
+    - ./data/ForAuth:/data/ForAuth
     env_file:
     - .env
     environment:
