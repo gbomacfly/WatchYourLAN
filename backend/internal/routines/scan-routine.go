@@ -70,6 +70,18 @@ func compareHosts(foundHostsMap map[string]models.Host) {
 				aHost.Hw = fHost.Hw
 			}
 
+			// Retry DNS resolution for hosts that still have no name - e.g. statically
+			// configured devices whose reverse DNS entry wasn't there yet (or didn't
+			// exist at all) the first time this host was discovered. Only fills in a
+			// blank name, never touches one that was resolved before or set by hand via
+			// the UI, so manual renames are never overwritten on a later scan.
+			if aHost.Name == "" {
+				if name, dns := check.DNS(aHost); name != "" {
+					aHost.Name = name
+					aHost.DNS = dns
+				}
+			}
+
 			delete(foundHostsMap, aHost.Mac)
 
 		} else {
