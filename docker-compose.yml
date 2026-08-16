@@ -18,6 +18,10 @@ services:
     # - "${DNS_IP}"
     volumes:
     - ./data:/data/WatchYourLAN
+    # optional override: watchyourlan already downloads and refreshes arp-scan's MAC
+    # vendor database (ieee-oui.txt) by itself on startup and weekly after that. Only
+    # uncomment this if you want to pin your own file instead (e.g. no internet access):
+    # - ./oui/ieee-oui.txt:/usr/share/arp-scan/ieee-oui.txt:ro
     env_file:
     - .env
     environment:

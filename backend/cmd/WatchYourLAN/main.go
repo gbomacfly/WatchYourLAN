@@ -47,6 +47,7 @@ func main() {
 
 	routines.ScanRestart()
 	routines.HistoryTrim()
+	routines.OuiUpdate()
 
 	web.Gui()
 }

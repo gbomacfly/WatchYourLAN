@@ -6,6 +6,10 @@ services:
     restart: unless-stopped
     volumes:
     - ./data/WatchYourLAN:/data/WatchYourLAN
+    # optional override: watchyourlan already downloads and refreshes arp-scan's MAC
+    # vendor database (ieee-oui.txt) by itself on startup and weekly after that. Only
+    # uncomment this if you want to pin your own file instead (e.g. no internet access):
+    # - ./oui/ieee-oui.txt:/usr/share/arp-scan/ieee-oui.txt:ro
     env_file:
     - .env
     environment:
@@ -37,7 +41,7 @@ services:
     env_file:
     - .env
     environment:
-      TZ: "${TZ}"                    # required: needs your TZ for correct time
+      TZ: "${TZ:-Europe/Berlin}"      # optional, default: Europe/Berlin
       FA_TARGET: "${WYL_HOST_IP}:${PORT:-8840}" # put your server IP or DNS name here
       FA_AUTH: "true"                 # optional: true - enabled, default: false
       FA_AUTH_EXPIRE: 7d              # optional: expiration time, default: 7d
