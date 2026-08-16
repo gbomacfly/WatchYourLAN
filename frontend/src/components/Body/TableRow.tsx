@@ -56,7 +56,7 @@ function TableRow(_props: any) {
         <a href={"http://" + _props.host.IP} target="_blank" class="hover:text-brand-600 dark:hover:text-brand-400">{_props.host.IP}</a>
       </td>
       <td class="px-3.5 py-2 font-mono text-slate-400 hidden md:table-cell">{_props.host.Mac}</td>
-      <td class="px-3.5 py-2 text-slate-400 hidden lg:table-cell" title={_props.host.Hw}>{_props.host.Hw.slice(0,12)+".."}</td>
+      <td class="px-3.5 py-2 text-slate-400 hidden lg:table-cell max-w-[16rem] truncate" title={_props.host.Hw}>{_props.host.Hw}</td>
       <td class="px-3.5 py-2 text-slate-400 hidden xl:table-cell">{_props.host.Date}</td>
       <td class="px-3.5 py-2">
         <button
