@@ -26,7 +26,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get version tag from env file
-        run: cat .version >> "$GITHUB_ENV"
+        run: |
+          VERSION=$(grep -m1 '^VERSION=' backend/internal/web/public/version | cut -d= -f2 | tr -d '\r\n')
+          echo "Resolved VERSION=$VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
