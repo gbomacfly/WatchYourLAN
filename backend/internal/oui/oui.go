@@ -106,7 +106,7 @@ func Update() {
 }
 
 // convertManuf converts Wireshark's manuf file into arp-scan's ieee-oui.txt format:
-// one entry per line, "<hex prefix><TAB><vendor name>". Mirrors the awk conversion:
+// one entry per line, "<hex prefix><TAB><vendor name>". Based on this awk conversion:
 //
 //	awk -F'\t' '
 //	!/^#/ && NF>=3 {
@@ -122,9 +122,12 @@ func Update() {
 //	  print substr(addr, 1, hexlen) "\t" $3
 //	}'
 //
-// Only lines with a long vendor name (the 3rd tab-separated field) are kept, since that's
-// the field arp-scan displays - the same reason a plain "AVM" line without one is skipped
-// in favor of the fuller "FRITZ! Technology GmbH" entry.
+// One deliberate difference from that awk version: the long vendor name (3rd field) is
+// preferred when present (e.g. "FRITZ! Technology GmbH" instead of a blank/generic AVM
+// entry), but a line that only has a short name (2nd field, no 3rd field at all) is still
+// kept using that short name, rather than dropped. Smaller/newer IEEE registrations often
+// only carry a short name in the manuf file - requiring a long name would silently lose
+// those vendors entirely instead of just showing a slightly less pretty name for them.
 func convertManuf(body []byte) (out []byte, lines int) {
 
 	var buf strings.Builder
@@ -138,7 +141,7 @@ func convertManuf(body []byte) (out []byte, lines int) {
 		}
 
 		fields := strings.Split(line, "\t")
-		if len(fields) < 3 {
+		if len(fields) < 2 {
 			continue
 		}
 
@@ -154,14 +157,26 @@ func convertManuf(body []byte) (out []byte, lines int) {
 			prefixLen = parsed
 		}
 
-		addr = strings.ReplaceAll(addr, ":", "")
+		// Normalize to uppercase: the manuf file mixes case across entries, and
+		// arp-scan's own ieee-oui.txt convention (and matching, per its docs) treats
+		// hex digits case-insensitively, but keeping output consistent avoids any doubt.
+		addr = strings.ToUpper(strings.ReplaceAll(addr, ":", ""))
 
 		hexLen := prefixLen / 4
 		if hexLen <= 0 || hexLen > len(addr) {
 			continue
 		}
 
-		vendor := strings.TrimSpace(fields[2])
+		// Prefer the long vendor name (3rd field) when present; some entries -
+		// often smaller/newer registrations - only carry the short name (2nd
+		// field). Use that instead of dropping the entry outright.
+		var vendor string
+		if len(fields) >= 3 {
+			vendor = strings.TrimSpace(fields[2])
+		}
+		if vendor == "" {
+			vendor = strings.TrimSpace(fields[1])
+		}
 		if vendor == "" {
 			continue
 		}
