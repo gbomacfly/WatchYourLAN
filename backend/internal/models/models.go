@@ -44,6 +44,7 @@ type Host struct {
 	Date  string `gorm:"column:DATE"`
 	Known int    `gorm:"column:KNOWN"`
 	Now   int    `gorm:"column:NOW"`
+	Group string `gorm:"column:GROUPNAME"`
 }
 
 // Stat - status

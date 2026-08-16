@@ -17,6 +17,8 @@ func Routes(router *gin.Engine) {
 		r0.GET("/host/:id", getHost)               // api-hosts.go
 		r0.GET("/host/del/:id", delHost)           // api-hosts.go
 		r0.GET("/host/add/:mac", addHost)          // api-hosts.go
+		r0.GET("/group/:id/*name", setHostGroup)   // api-hosts.go
+		r0.GET("/groups", getGroups)               // api-hosts.go
 
 		r0.GET("/config", getConfig)                    // api-system.go
 		r0.GET("/config/color/:color", setColorHandler) // config.go

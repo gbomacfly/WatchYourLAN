@@ -56,3 +56,16 @@ func SelectLatest(mac string, number int) (hosts []models.Host) {
 
 	return hosts
 }
+
+// SelectGroups - get all distinct, non-empty group names, sorted alphabetically
+func SelectGroups() (groups []string) {
+
+	tab := db.Table("now")
+	tab.
+		Where("\"GROUPNAME\" <> ?", "").
+		Distinct("\"GROUPNAME\"").
+		Order("\"GROUPNAME\" ASC").
+		Pluck("GROUPNAME", &groups)
+
+	return groups
+}
