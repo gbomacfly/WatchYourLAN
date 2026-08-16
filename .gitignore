@@ -5,3 +5,6 @@ tmp/
 # Local secrets/config, use .env.example as template
 .env
 
+# Temporary staging dirs used to transfer file changes into this repo
+_new_files*/
+
