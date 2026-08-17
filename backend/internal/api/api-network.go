@@ -27,6 +27,22 @@ func getPortState(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, state)
 }
 
+// getPortBanner godoc
+// @Summary      Grab a port's greeting banner
+// @Description  Best-effort: connects to an already-open TCP port and reads whatever greeting it offers (SSH/FTP/SMTP/...), or sends a minimal HTTP HEAD request otherwise. Empty string if nothing useful came back.
+// @Tags         network
+// @Produce      json
+// @Param        addr  path      string  true  "IP address or hostname"
+// @Param        port  path      string  true  "Port number"
+// @Success      200   {string}  string  "banner text, possibly empty"
+// @Router       /banner/{addr}/{port} [get]
+func getPortBanner(c *gin.Context) {
+	addr := c.Param("addr")
+	port := c.Param("port")
+	banner := portscan.GrabBanner(addr, port)
+	c.IndentedJSON(http.StatusOK, banner)
+}
+
 // sendWOL godoc
 // @Summary      Send Wake-on-LAN packet
 // @Description  Send a magic packet to wake up a host by its MAC address

@@ -41,6 +41,19 @@ curl http://0.0.0.0:8840/api/port/192.168.2.2/8844
 
 
 ```http
+GET /api/banner/:addr/:port
+```
+Best-effort: connects to `port` on `addr` and returns whatever greeting/banner text it can read (e.g. an SSH version string, or the HTTP status line + `Server` header for web servers). Returns an empty string if nothing useful came back. Meant to be called after `/api/port/:addr/:port` confirms the port is open.
+<details>
+  <summary>Request example</summary>
+
+```bash
+curl http://0.0.0.0:8840/api/banner/192.168.2.2/22
+```
+</details><br>
+
+
+```http
 GET /api/edit/:id/:name/*known
 ```
 Edit host with ID `id`. Can change `name`. `known` is optional, when set to `toggle` will change Known state.

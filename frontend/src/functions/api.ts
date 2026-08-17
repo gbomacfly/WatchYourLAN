@@ -77,6 +77,14 @@ export const apiPortScan = async (ip:string, port:number) => {
   return res;
 };
 
+export const apiGetBanner = async (ip:string, port:number): Promise<string> => {
+
+  const url = apiPath+'/api/banner/'+ip+'/'+port;
+  const res = await (await fetch(url)).json();
+
+  return res;
+};
+
 export const apiGetHistory = async (mac:string) => {
   const url = apiPath+'/api/history/'+mac+'/?num=210';
   const hosts = await (await fetch(url)).json();

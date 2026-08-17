@@ -31,8 +31,9 @@ func Routes(router *gin.Engine) {
 		r0.GET("/history/:mac", getHistoryByMAC)        // api-history.go
 		r0.GET("/history/:mac/:date", getHistoryByDate) // api-history.go
 
-		r0.GET("/port/:addr/:port", getPortState) // api-network.go
-		r0.GET("/wol/:mac", sendWOL)              // api-network.go
+		r0.GET("/port/:addr/:port", getPortState)    // api-network.go
+		r0.GET("/banner/:addr/:port", getPortBanner) // api-network.go
+		r0.GET("/wol/:mac", sendWOL)                 // api-network.go
 
 		r0.POST("/config/", saveConfigHandler)                // config.go
 		r0.POST("/config_settings/", saveSettingsHandler)     // config.go

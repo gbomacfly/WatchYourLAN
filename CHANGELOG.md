@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Fork] - unreleased
 
+## [Fork 2.6.0] - 2026-08-17
+### Added
+- Port scanner now grabs a short greeting/banner from each open port (`GET /api/banner/:addr/:port`): reads what the service volunteers on connect for greeting-first protocols (SSH, FTP, SMTP, ...), or sends a minimal HTTP HEAD request otherwise, with automatic TLS for common TLS ports (443, 993, ...). Shown under each found port in the UI as soon as it's ready, without slowing down the scan itself.
+
 ## [Fork 2.5.0] - 2026-08-17
 ### Added
 - Open ports found by the port scanner now show a well-known service name (e.g. "22 SSH", "80 HTTP", "32400 Plex") next to the port number, with the full name in a hover tooltip, covering common IANA well-knowns plus self-hosted apps often found on a home/small office LAN
