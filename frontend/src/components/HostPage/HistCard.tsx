@@ -1,6 +1,7 @@
-import { createSignal, onMount } from "solid-js";
+import { createSignal, onMount, Show } from "solid-js";
 import { setShow } from "../../functions/exports";
 import MacHistory from "../MacHistory"
+import { cardBodyClass, cardClass, cardHeaderClass, inputClass } from "../Config/formStyles";
 
 function HistCard(_props: any) {
 
@@ -17,23 +18,20 @@ function HistCard(_props: any) {
   };
 
   return (
-    <div class="card border-primary">
-      <div class="card-header">
-        <div class="input-group" style="width: fit-content;">
-          <span class="input-group-text">Host History for</span>
-          <input
-            type="date"
-            class="form-control"
-            value={today()}
-            onInput={(e) => handleDate(e.currentTarget.value)}
-          />
-        </div>
+    <div class={cardClass}>
+      <div class={cardHeaderClass + " flex items-center gap-3"}>
+        <span class="whitespace-nowrap">Host History for</span>
+        <input
+          type="date"
+          class={inputClass + " w-auto"}
+          value={today()}
+          onInput={(e) => handleDate(e.currentTarget.value)}
+        />
       </div>
-      <div class="card-body">
-      {_props.mac !== "" && today() !== ""
-      ? <MacHistory mac={_props.mac} date={today()}></MacHistory>
-      : <>Loading...</>
-      }
+      <div class={cardBodyClass}>
+        <Show when={_props.mac !== "" && today() !== ""} fallback={<span class="text-sm text-slate-400">Loading...</span>}>
+          <MacHistory mac={_props.mac} date={today()}></MacHistory>
+        </Show>
       </div>
     </div>
   )

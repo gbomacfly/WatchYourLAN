@@ -1,5 +1,5 @@
 import { createSignal, Show } from "solid-js";
-import { editNames, selectedIDs, setSelectedIDs } from "../../functions/exports";
+import { editNames, selectedIDs, setEditNames, setSelectedIDs } from "../../functions/exports";
 import { apiEditHost } from "../../functions/api";
 
 import { debounce } from "@solid-primitives/scheduled";
@@ -52,7 +52,15 @@ function TableRow(_props: any) {
           <span class={"w-2 h-2 rounded-full shrink-0 " + (online ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600")} title={online ? "Online" : "Offline"}></span>
           <Show
             when={editNames()}
-            fallback={<span class="font-medium">{name()}</span>}
+            fallback={
+              <span
+                class="font-medium cursor-pointer hover:text-brand-600 dark:hover:text-brand-400"
+                title="Klicken zum Bearbeiten"
+                onClick={() => setEditNames(true)}
+              >
+                {name()}
+              </span>
+            }
           >
             <input type="text" class="px-2 py-1 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm w-full max-w-[12rem]" value={name()}
               onInput={e => handleInput(e.target.value)}></input>

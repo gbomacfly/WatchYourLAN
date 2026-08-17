@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Fork] - unreleased
 
+## [Fork 2.6.1] - 2026-08-17
+### Added
+- Clicking a device's name in the host table now also opens edit mode (previously only the "Bearbeiten" button did)
+
 ## [Fork 2.6.0] - 2026-08-17
 ### Added
 - Port scanner now grabs a short greeting/banner from each open port (`GET /api/banner/:addr/:port`): reads what the service volunteers on connect for greeting-first protocols (SSH, FTP, SMTP, ...), or sends a minimal HTTP HEAD request otherwise, with automatic TLS for common TLS ports (443, 993, ...). Shown under each found port in the UI as soon as it's ready, without slowing down the scan itself.

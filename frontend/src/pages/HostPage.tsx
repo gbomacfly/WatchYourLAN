@@ -20,21 +20,13 @@ function HostPage() {
   });
 
   return (
-    <>
-    <div class="row">
-      <div class="col-md">
+    <div class="flex flex-col gap-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
         <HostCard host={currentHost()}></HostCard>
-      </div>
-      <div class="col-md">
         <Ping IP={currentHost().IP}></Ping>
       </div>
+      <HistCard mac={currentHost().Mac}></HistCard>
     </div>
-    <div class="row mt-4">
-      <div class="col-md">
-        <HistCard mac={currentHost().Mac}></HistCard>
-      </div>
-    </div>
-    </>
   )
 }
 
