@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Fork] - unreleased
 
+## [Fork 2.4.0] - 2026-08-17
+### Added
+- The stat tiles above the host table (Gesamt/Online/Offline/Bekannt/Unbekannt) are now clickable and filter the table, with the active tile highlighted
+- "Alle"/"Keine" button in edit mode to select or deselect all visible hosts at once
+- The group-assign button now reads "Gruppe entfernen" and its tooltip explains that leaving the group field empty removes the selected hosts from their group
+
+### Changed
+- Selection checkboxes are now cleared automatically after assigning/removing a group, and when leaving edit mode
+
 ## [Fork 2.3.0] - 2026-08-17
 ### Changed
 - Config, History and Host detail pages restyled from Bootstrap to Tailwind CSS, matching the rest of the UI (cards, inputs, buttons, dark/light mode). This was the last batch of pages still using Bootstrap.

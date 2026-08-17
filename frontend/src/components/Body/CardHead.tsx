@@ -1,5 +1,5 @@
 import { createSignal, For, Show } from "solid-js";
-import { editNames, groups, selectedIDs, setEditNames } from "../../functions/exports";
+import { allHosts, editNames, groups, selectedIDs, setEditNames, setSelectedIDs } from "../../functions/exports";
 import Filter from "../Filter";
 import Search from "../Search";
 import { getHosts } from "../../functions/atstart";
@@ -12,9 +12,20 @@ function CardHead() {
   const handleEditNames = (toggle: boolean) => {
     if (!toggle) {
       setGroupInput("");
+      setSelectedIDs([]);
       getHosts();
     }
     setEditNames(toggle);
+  };
+
+  const allSelected = () => allHosts.length > 0 && selectedIDs().length === allHosts.length;
+
+  const handleToggleSelectAll = () => {
+    if (allSelected()) {
+      setSelectedIDs([]);
+    } else {
+      setSelectedIDs(allHosts.map(h => h.ID));
+    }
   };
 
   const handleDel = async () => {
@@ -40,6 +51,7 @@ function CardHead() {
     }
 
     setGroupInput("");
+    setSelectedIDs([]);
     await getHosts();
   };
 
@@ -60,13 +72,21 @@ function CardHead() {
             </button>
           }
         >
+          <button
+            type="button"
+            onClick={handleToggleSelectAll}
+            title={allSelected() ? "Alle abwählen" : "Alle auswählen"}
+            class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
+          >
+            {allSelected() ? "Keine" : "Alle"}
+          </button>
           <input
             type="text"
             list="group-suggestions"
             value={groupInput()}
             onInput={e => setGroupInput((e.target as HTMLInputElement).value)}
             placeholder="Gruppe..."
-            title="Gruppe für ausgewählte Geräte (leer lassen zum Entfernen)"
+            title="Gruppe für ausgewählte Geräte (leer lassen, um sie aus ihrer Gruppe zu entfernen)"
             class="px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm w-32"
           />
           <datalist id="group-suggestions">
@@ -76,10 +96,10 @@ function CardHead() {
             type="button"
             onClick={handleSetGroup}
             disabled={selectedIDs().length === 0}
-            title="Gruppe für ausgewählte Geräte setzen"
+            title={groupInput().trim() === "" ? "Ausgewählte Geräte aus ihrer Gruppe entfernen" : "Gruppe für ausgewählte Geräte setzen"}
             class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Gruppe zuweisen
+            {groupInput().trim() === "" ? "Gruppe entfernen" : "Gruppe zuweisen"}
           </button>
           <button
             type="button"
