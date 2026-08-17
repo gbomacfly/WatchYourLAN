@@ -1,10 +1,13 @@
 import { createSignal, Show } from "solid-js";
-import { editNames, selectedIDs, setEditNames, setSelectedIDs } from "../../functions/exports";
+import { editNames, selectedIDs, setSelectedIDs } from "../../functions/exports";
+import { useNavigate } from "@solidjs/router";
 import { apiEditHost } from "../../functions/api";
 
 import { debounce } from "@solid-primitives/scheduled";
 
 function TableRow(_props: any) {
+
+  const navigate = useNavigate();
 
   const [name, setName] = createSignal(_props.host.Name);
 
@@ -55,8 +58,8 @@ function TableRow(_props: any) {
             fallback={
               <span
                 class="font-medium cursor-pointer hover:text-brand-600 dark:hover:text-brand-400"
-                title="Klicken zum Bearbeiten"
-                onClick={() => setEditNames(true)}
+                title="Details / Bearbeiten"
+                onClick={() => navigate("/host/" + _props.host.ID)}
               >
                 {name()}
               </span>

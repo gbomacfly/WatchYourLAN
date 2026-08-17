@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Fork] - unreleased
 
+## [Fork 2.6.2] - 2026-08-17
+### Changed
+- Clicking a device's name in the host table now opens that device's detail/edit page (`/host/:id`), instead of switching the whole table into bulk edit mode
+
 ## [Fork 2.6.1] - 2026-08-17
 ### Added
 - Clicking a device's name in the host table now also opens edit mode (previously only the "Bearbeiten" button did)
