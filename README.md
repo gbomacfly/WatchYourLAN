@@ -18,10 +18,8 @@ Lightweight network IP scanner with web GUI. Features:
 - Keep a list of all hosts in the network
 - Send data to `InfluxDB2` or `Prometheus` to make a `Grafana` dashboard
 
-![Screenshot_1](https://raw.githubusercontent.com/aceberg/WatchYourLAN/main/assets/Screenshot_1.png)
-
-> [!NOTE]
-> Screenshots above are still from upstream and show the old Bootstrap UI. This fork's UI has since moved to Tailwind CSS with a sidebar layout - updated screenshots are on the to-do list.
+![Screenshot light mode](https://raw.githubusercontent.com/gbomacfly/WatchYourLAN/main/assets/screenshot-light.png)
+![Screenshot dark mode](https://raw.githubusercontent.com/gbomacfly/WatchYourLAN/main/assets/screenshot-dark.png)
 
 ## Quick start
 
