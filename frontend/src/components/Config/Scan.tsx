@@ -1,79 +1,76 @@
 import { For, Show } from "solid-js"
 import { appConfig } from "../../functions/exports"
 import { apiPath } from "../../functions/api"
+import { cardBodyClass, cardClass, cardHeaderClass, inputClass, labelClass, primaryBtnClass, selectClass } from "./formStyles"
 
 function Scan() {
 
   return (
-    <div class="card border-primary">
-      <div class="card-header">Scan settings</div>
-      <div class="card-body table-responsive">
-        <form action={apiPath + '/api/config_settings/'} method="post">
-          <table class="table table-borderless"><tbody>
-            <tr>
-              <td>Interfaces</td>
-              <td><input name="ifaces" type="text" class="form-control" value={appConfig().Ifaces}></input></td>
-            </tr>
-            <tr>
-              <td>Timeout (seconds)</td>
-              <td><input name="timeout" type="number" class="form-control" value={appConfig().Timeout}></input></td>
-            </tr>
-            <tr>
-              <td>Args for arp-scan</td>
-              <td><input name="arpargs" type="text" class="form-control" value={appConfig().ArpArgs}></input></td>
-            </tr>
-            <tr>
-              <td>Arp Strings</td>
-              <td>
-                <For each={appConfig().ArpStrs}>{arpStr =>
-                  <input name="arpstrs" type="text" class="form-control" value={arpStr}></input>
-                }</For>
-                <input name="arpstrs" type="text" class="form-control"></input>
-              </td>
-            </tr>
-            <tr>
-              <td>Log level</td>
-              <td><select name="log" class="form-select">
-              <For each={["debug","info","warn","error"]}>{level =>
-                <Show
-                  when={level == appConfig().LogLevel}
-                  fallback={<option value={level}>{level}</option>}
-                >
-                <option value={level} selected>{level}</option>
-                </Show>
+    <div class={cardClass}>
+      <div class={cardHeaderClass}>Scan settings</div>
+      <div class={cardBodyClass}>
+        <form action={apiPath + '/api/config_settings/'} method="post" class="space-y-4">
+          <div>
+            <label class={labelClass}>Interfaces</label>
+            <input name="ifaces" type="text" class={inputClass} value={appConfig().Ifaces}></input>
+          </div>
+          <div>
+            <label class={labelClass}>Timeout (seconds)</label>
+            <input name="timeout" type="number" class={inputClass} value={appConfig().Timeout}></input>
+          </div>
+          <div>
+            <label class={labelClass}>Args for arp-scan</label>
+            <input name="arpargs" type="text" class={inputClass} value={appConfig().ArpArgs}></input>
+          </div>
+          <div>
+            <label class={labelClass}>Arp Strings</label>
+            <div class="space-y-2">
+              <For each={appConfig().ArpStrs}>{arpStr =>
+                <input name="arpstrs" type="text" class={inputClass} value={arpStr}></input>
               }</For>
-              </select></td>
-            </tr>
-            <tr>
-              <td>Trim History (hours)</td>
-              <td><input name="trim" type="number" class="form-control" value={appConfig().TrimHist}></input></td>
-            </tr>
-            <tr>
-              <td>Use DB</td>
-              <td><select name="usedb" class="form-select">
-                <Show
-                  when={appConfig().UseDB == "sqlite"}
-                  fallback={<>
-                    <option value="sqlite">sqlite</option>
-                    <option value="postgres" selected>postgres</option>
-                  </>}
-                >
-                  <option value="sqlite" selected>sqlite</option>
-                  <option value="postgres">postgres</option>
-                </Show>
-              </select></td>
-            </tr>
-            <tr>
-              <td>PG Connect URL</td>
-              <td>
-                <textarea name="pgconnect" class="form-control" style="width: 100%;" rows="3" wrap="soft">{appConfig().PGConnect}</textarea>
-              </td>
-            </tr>
-            <tr>
-              <td><button type="submit" class="btn btn-primary">Save</button></td>
-              <td class="text-muted">*Pressing <b>Save</b> button will trigger rescan</td>
-            </tr>
-            </tbody></table>
+              <input name="arpstrs" type="text" class={inputClass}></input>
+            </div>
+          </div>
+          <div>
+            <label class={labelClass}>Log level</label>
+            <select name="log" class={selectClass}>
+            <For each={["debug","info","warn","error"]}>{level =>
+              <Show
+                when={level == appConfig().LogLevel}
+                fallback={<option value={level}>{level}</option>}
+              >
+              <option value={level} selected>{level}</option>
+              </Show>
+            }</For>
+            </select>
+          </div>
+          <div>
+            <label class={labelClass}>Trim History (hours)</label>
+            <input name="trim" type="number" class={inputClass} value={appConfig().TrimHist}></input>
+          </div>
+          <div>
+            <label class={labelClass}>Use DB</label>
+            <select name="usedb" class={selectClass}>
+              <Show
+                when={appConfig().UseDB == "sqlite"}
+                fallback={<>
+                  <option value="sqlite">sqlite</option>
+                  <option value="postgres" selected>postgres</option>
+                </>}
+              >
+                <option value="sqlite" selected>sqlite</option>
+                <option value="postgres">postgres</option>
+              </Show>
+            </select>
+          </div>
+          <div>
+            <label class={labelClass}>PG Connect URL</label>
+            <textarea name="pgconnect" class={inputClass} rows="3" wrap="soft">{appConfig().PGConnect}</textarea>
+          </div>
+          <div class="flex items-center gap-3 pt-1">
+            <button type="submit" class={primaryBtnClass}>Save</button>
+            <span class="text-xs text-slate-400 dark:text-slate-500">*Pressing <b>Save</b> will trigger a rescan</span>
+          </div>
         </form>
       </div>
     </div>

@@ -23,14 +23,18 @@ function MacHistory(_props: any) {
   });
 
   return (
-    <For each={hist}>{(h, index) =>
-      <Show
-        when={index() < show()}
-      >
-        <i title={"Date:"+h.Date+"\nIface:"+h.Iface+"\nIP:"+h.IP+"\nKnown:"+h.Known} 
-        class={h.Now === 0?"my-box-off":"my-box-on"}></i>
-      </Show>
-    }</For>
+    <div class="flex flex-wrap gap-0.5">
+      <For each={hist}>{(h, index) =>
+        <Show
+          when={index() < show()}
+        >
+          <span
+            title={"Date:"+h.Date+"\nIface:"+h.Iface+"\nIP:"+h.IP+"\nKnown:"+h.Known}
+            class={"inline-block w-2.5 h-4 rounded-sm " + (h.Now === 0 ? "bg-slate-300 dark:bg-slate-600" : "bg-emerald-500")}
+          ></span>
+        </Show>
+      }</For>
+    </div>
   )
 }
 

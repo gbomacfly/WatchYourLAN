@@ -8,28 +8,16 @@ import Scan from "../components/Config/Scan"
 function Config() {
 
   return (
-    <div class="row">
-      <div class="col-md">
-        
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+      <div class="space-y-4">
         <Basic></Basic>
-        
-        <div class="mt-4">
-          <Donate></Donate>
-        </div>
-        <div class="mt-4 mb-4">
-          <Scan></Scan>
-        </div>
+        <Donate></Donate>
+        <Scan></Scan>
       </div>
-      <div class="col-md">
-        
+      <div class="space-y-4">
         <Influx></Influx>
-        
-        <div class="mt-4">
-          <Prometheus></Prometheus>
-        </div>
-        <div class="mt-4">
-          <About></About>
-        </div>
+        <Prometheus></Prometheus>
+        <About></About>
       </div>
     </div>
   )
