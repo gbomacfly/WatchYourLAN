@@ -37,6 +37,42 @@
                 }
             }
         },
+        "/banner/{addr}/{port}": {
+            "get": {
+                "description": "Best-effort: connects to an already-open TCP port and reads whatever greeting it offers (SSH/FTP/SMTP/...), or sends a minimal HTTP HEAD request otherwise. Empty string if nothing useful came back.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "network"
+                ],
+                "summary": "Grab a port's greeting banner",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "IP address or hostname",
+                        "name": "addr",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Port number",
+                        "name": "port",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "banner text, possibly empty",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/config": {
             "get": {
                 "description": "Returns the current configuration used by the app",
@@ -94,6 +130,65 @@
                         "description": "OK",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/group/{id}/{name}": {
+            "get": {
+                "description": "Assign a host to a group. Pass an empty trailing segment (e.g. \"/group/5/\") to remove the host from its group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hosts"
+                ],
+                "summary": "Set host group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Host ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Group name, empty to unset",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Host"
+                        }
+                    }
+                }
+            }
+        },
+        "/groups": {
+            "get": {
+                "description": "Retrieve a sorted list of distinct, non-empty group names currently in use",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hosts"
+                ],
+                "summary": "Get all groups",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -553,6 +648,9 @@
                     "type": "string"
                 },
                 "dns": {
+                    "type": "string"
+                },
+                "group": {
                     "type": "string"
                 },
                 "hw": {
