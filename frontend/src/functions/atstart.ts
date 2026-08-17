@@ -1,5 +1,5 @@
 import { apiGetAllHosts } from "./api";
-import { allHosts, setAllHosts, setBkpHosts, setIfaces, setGroups } from "./exports";
+import { allHosts, setAllHosts, setBkpHosts, setIfaces, setTags } from "./exports";
 import { filterAtStart, filterFunc } from "./filter";
 import { sortAtStart } from "./sort";
 
@@ -20,7 +20,7 @@ export async function getHosts() {
     setBkpHosts(hosts);
 
     listIfaces();
-    listGroups();
+    listTags();
     sortAtStart();
     filterAtStart();
   }
@@ -39,16 +39,18 @@ function listIfaces() {
   setIfaces(ifaces);
 }
 
-function listGroups() {
+function listTags() {
 
-  let groups:string[] = [];
+  let tags:string[] = [];
 
   for (let host of allHosts) {
-    if (host.Group && !groups.includes(host.Group)) {
-      groups.push(host.Group);
+    for (let tag of host.Tags ?? []) {
+      if (!tags.includes(tag)) {
+        tags.push(tag);
+      }
     }
   }
-  groups.sort((a, b) => a.localeCompare(b));
+  tags.sort((a, b) => a.localeCompare(b));
 
-  setGroups(groups);
+  setTags(tags);
 }

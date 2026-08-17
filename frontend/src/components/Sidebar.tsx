@@ -1,5 +1,5 @@
 import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
-import { activeFilter, appConfig, groups, setAppConfig, setHistUpdOnFilter } from "../functions/exports";
+import { activeFilter, appConfig, tags, setAppConfig, setHistUpdOnFilter } from "../functions/exports";
 import { apiGetConfig, apiSetColor } from "../functions/api";
 import { filterFunc } from "../functions/filter";
 
@@ -85,9 +85,9 @@ function Sidebar() {
       </nav>
 
       <div class="px-3 mt-2">
-        <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">Gruppen</div>
-        <Show when={groups().length > 0} fallback={
-          <div class="px-3 py-2 text-xs text-slate-400 dark:text-slate-500 italic">Keine Gruppen</div>
+        <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">Tags</div>
+        <Show when={tags().length > 0} fallback={
+          <div class="px-3 py-2 text-xs text-slate-400 dark:text-slate-500 italic">Keine Tags</div>
         }>
           <div class="space-y-0.5">
             <a
@@ -105,23 +105,23 @@ function Sidebar() {
             >
               Alle
             </a>
-            <For each={groups()}>
-              {(group) => (
+            <For each={tags()}>
+              {(tag) => (
                 <a
                   href="/"
                   class={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm no-underline truncate ${
-                    activeFilter().field === "Group" && activeFilter().value === group
+                    activeFilter().field === "Tags" && activeFilter().value === tag
                       ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
                       : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
-                  title={group}
+                  title={tag}
                   onClick={(e) => {
                     e.preventDefault();
-                    filterFunc("Group", group);
+                    filterFunc("Tags", tag);
                     setHistUpdOnFilter(true);
                   }}
                 >
-                  {group}
+                  {tag}
                 </a>
               )}
             </For>

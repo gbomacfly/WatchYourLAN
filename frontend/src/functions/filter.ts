@@ -32,8 +32,8 @@ export function filterFunc(field: keyof Host, value: any) {
     case 'Now':
       addrsArray = addrsArray.filter((item) => item.Now == value);
       break;
-    case 'Group':
-      addrsArray = addrsArray.filter((item) => item.Group == value);
+    case 'Tags':
+      addrsArray = addrsArray.filter((item) => (item.Tags ?? []).includes(value));
       break;
     default:
       addrsArray = bkpHosts();

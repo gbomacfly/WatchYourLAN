@@ -45,9 +45,18 @@ export const apiEditHost = async (id:number, name:string, known:string) => {
   return res;
 };
 
-export const apiSetGroup = async (id:number, group:string) => {
+export const apiSetTags = async (id:number, tags:string[]) => {
 
-  const url = apiPath+'/api/group/'+id+'/'+encodeURIComponent(group);
+  const encoded = tags.map(t => encodeURIComponent(t)).join(',');
+  const url = apiPath+'/api/tags/'+id+'/'+encoded;
+  const res = await (await fetch(url)).json();
+
+  return res;
+};
+
+export const apiGetTags = async (): Promise<string[]> => {
+
+  const url = apiPath+'/api/tags';
   const res = await (await fetch(url)).json();
 
   return res;

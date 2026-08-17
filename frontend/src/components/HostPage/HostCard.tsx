@@ -1,4 +1,4 @@
-import { apiDelHost, apiEditHost, apiWOL } from "../../functions/api";
+import { apiDelHost, apiEditHost, apiSetTags, apiWOL } from "../../functions/api";
 import { cardBodyClass, cardClass, cardHeaderClass, inputClass } from "../Config/formStyles";
 
 import { debounce } from "@solid-primitives/scheduled";
@@ -46,6 +46,15 @@ function HostCard(_props: any) {
     await apiWOL(_props.host.Mac);
   };
 
+  const debouncedTags = debounce(async (val: string) => {
+    const tags = val.split(',').map(t => t.trim()).filter(t => t !== "");
+    await apiSetTags(_props.host.ID, tags);
+  }, 300);
+
+  const handleTagsInput = (val: string) => {
+    debouncedTags(val);
+  };
+
   const known = () => _props.host.Known == 1;
   const online = () => _props.host.Now == 1;
 
@@ -72,6 +81,16 @@ function HostCard(_props: any) {
         </Row>
         <Row label="Hardware">{_props.host.Hw}</Row>
         <Row label="Date">{_props.host.Date}</Row>
+        <Row label="Tags">
+          <input
+            type="text"
+            class={inputClass + " text-right"}
+            value={(_props.host.Tags ?? []).join(', ')}
+            placeholder="z.B. Netzwerk, IoT"
+            title="Kommagetrennte Tags"
+            onInput={e => handleTagsInput(e.target.value)}
+          ></input>
+        </Row>
         <Row label="Known">
           <button
             type="button"

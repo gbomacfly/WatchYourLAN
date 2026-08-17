@@ -120,37 +120,50 @@ func editHost(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, "OK")
 }
 
-// setHostGroup godoc
-// @Summary      Set host group
-// @Description  Assign a host to a group. Pass an empty trailing segment (e.g. "/group/5/") to remove the host from its group
+// setHostTags godoc
+// @Summary      Set host tags
+// @Description  Replace a host's tags with a comma-separated list (e.g. "Network,IoT"). Pass an empty trailing segment (e.g. "/tags/5/") to clear all tags
 // @Tags         hosts
 // @Produce      json
 // @Param        id    path      string  true  "Host ID"
-// @Param        name  path      string  true  "Group name, empty to unset"
+// @Param        name  path      string  true  "Comma-separated tag list, empty to clear"
 // @Success      200   {object}  models.Host
-// @Router       /group/{id}/{name} [get]
-func setHostGroup(c *gin.Context) {
+// @Router       /tags/{id}/{name} [get]
+func setHostTags(c *gin.Context) {
 
 	idStr := c.Param("id")
-	groupName := strings.TrimPrefix(c.Param("name"), "/")
+	tagsParam := strings.TrimPrefix(c.Param("name"), "/")
 
 	host := getHostByID(idStr) // functions.go
-	host.Group = groupName
+	host.Tags = parseTags(tagsParam)
 
 	gdb.Update("now", host)
-	slog.Info("Set host group", "host", host.Name, "group", groupName)
+	slog.Info("Set host tags", "host", host.Name, "tags", host.Tags)
 
 	c.IndentedJSON(http.StatusOK, host)
 }
 
-// getGroups godoc
-// @Summary      Get all groups
-// @Description  Retrieve a sorted list of distinct, non-empty group names currently in use
+// parseTags splits a comma-separated tag string into a trimmed, non-empty TagList
+func parseTags(raw string) models.TagList {
+	parts := strings.Split(raw, ",")
+	tags := make(models.TagList, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			tags = append(tags, p)
+		}
+	}
+	return tags
+}
+
+// getTags godoc
+// @Summary      Get all tags
+// @Description  Retrieve a sorted list of distinct, non-empty tags currently in use across all hosts
 // @Tags         hosts
 // @Produce      json
 // @Success      200  {array}  string
-// @Router       /groups [get]
-func getGroups(c *gin.Context) {
-	groups := gdb.SelectGroups()
-	c.IndentedJSON(http.StatusOK, groups)
+// @Router       /tags [get]
+func getTags(c *gin.Context) {
+	tags := gdb.SelectTags()
+	c.IndentedJSON(http.StatusOK, tags)
 }

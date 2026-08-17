@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 > This is [gbomacfly/WatchYourLAN](https://github.com/gbomacfly/WatchYourLAN), a fork of [aceberg/WatchYourLAN](https://github.com/aceberg/WatchYourLAN). Entries from `v2.1.4` and earlier are upstream's original history. Everything under **Fork** below is specific to this repo.
 
 ## [Fork] - unreleased
+### Planned
+- Config-based MAC vendor overrides: let users map custom MAC prefixes to their own names for hosts the OUI database can't identify (homemade hardware, Proxmox VMs, ...) - see upstream [#185](https://github.com/aceberg/WatchYourLAN/issues/185)
+
+## [Fork 2.7.0] - 2026-08-17
+### Added
+- Hosts can now have multiple free-form tags instead of a single group, filterable in the sidebar and editable per-host (Host detail page) or in bulk (select hosts, type comma-separated tags, assign). Closes upstream [#152](https://github.com/aceberg/WatchYourLAN/issues/152).
+
+### Changed
+- API: `/api/group/:id/*name` and `/api/groups` are replaced by `/api/tags/:id/*name` (comma-separated tag list) and `/api/tags`. Existing single-group assignments are preserved as a one-tag list - no manual migration needed, same DB column is reused.
 
 ## [Fork 2.6.2] - 2026-08-17
 ### Changed

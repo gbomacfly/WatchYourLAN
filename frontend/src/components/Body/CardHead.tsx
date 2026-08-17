@@ -1,17 +1,17 @@
 import { createSignal, For, Show } from "solid-js";
-import { allHosts, editNames, groups, selectedIDs, setEditNames, setSelectedIDs } from "../../functions/exports";
+import { allHosts, editNames, tags, selectedIDs, setEditNames, setSelectedIDs } from "../../functions/exports";
 import Filter from "../Filter";
 import Search from "../Search";
 import { getHosts } from "../../functions/atstart";
-import { apiDelHost, apiSetGroup } from "../../functions/api";
+import { apiDelHost, apiSetTags } from "../../functions/api";
 
 function CardHead() {
 
-  const [groupInput, setGroupInput] = createSignal("");
+  const [tagsInput, setTagsInput] = createSignal("");
 
   const handleEditNames = (toggle: boolean) => {
     if (!toggle) {
-      setGroupInput("");
+      setTagsInput("");
       setSelectedIDs([]);
       getHosts();
     }
@@ -38,19 +38,21 @@ function CardHead() {
     window.location.href = '/';
   };
 
-  const handleSetGroup = async () => {
+  const parsedTags = () => tagsInput().split(',').map(t => t.trim()).filter(t => t !== "");
+
+  const handleSetTags = async () => {
     const ids = selectedIDs();
-    const group = groupInput().trim();
+    const newTags = parsedTags();
 
     if (ids.length === 0) {
       return;
     }
 
     for (let id of ids) {
-      await apiSetGroup(id, group);
+      await apiSetTags(id, newTags);
     }
 
-    setGroupInput("");
+    setTagsInput("");
     setSelectedIDs([]);
     await getHosts();
   };
@@ -82,24 +84,24 @@ function CardHead() {
           </button>
           <input
             type="text"
-            list="group-suggestions"
-            value={groupInput()}
-            onInput={e => setGroupInput((e.target as HTMLInputElement).value)}
-            placeholder="Gruppe..."
-            title="Gruppe für ausgewählte Geräte (leer lassen, um sie aus ihrer Gruppe zu entfernen)"
-            class="px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm w-32"
+            list="tag-suggestions"
+            value={tagsInput()}
+            onInput={e => setTagsInput((e.target as HTMLInputElement).value)}
+            placeholder="Tags..."
+            title="Kommagetrennte Tags für ausgewählte Geräte, ersetzt bestehende Tags (leer lassen, um alle Tags zu entfernen)"
+            class="px-2.5 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm w-40"
           />
-          <datalist id="group-suggestions">
-            <For each={groups()}>{(group) => <option value={group} />}</For>
+          <datalist id="tag-suggestions">
+            <For each={tags()}>{(tag) => <option value={tag} />}</For>
           </datalist>
           <button
             type="button"
-            onClick={handleSetGroup}
+            onClick={handleSetTags}
             disabled={selectedIDs().length === 0}
-            title={groupInput().trim() === "" ? "Ausgewählte Geräte aus ihrer Gruppe entfernen" : "Gruppe für ausgewählte Geräte setzen"}
+            title={parsedTags().length === 0 ? "Alle Tags der ausgewählten Geräte entfernen" : "Tags für ausgewählte Geräte setzen (ersetzt bestehende Tags)"}
             class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {groupInput().trim() === "" ? "Gruppe entfernen" : "Gruppe zuweisen"}
+            {parsedTags().length === 0 ? "Tags entfernen" : "Tags zuweisen"}
           </button>
           <button
             type="button"

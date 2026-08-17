@@ -1,6 +1,9 @@
 package gdb
 
 import (
+	"sort"
+	"strings"
+
 	"github.com/gbomacfly/WatchYourLAN/internal/check"
 	"github.com/gbomacfly/WatchYourLAN/internal/models"
 )
@@ -57,15 +60,29 @@ func SelectLatest(mac string, number int) (hosts []models.Host) {
 	return hosts
 }
 
-// SelectGroups - get all distinct, non-empty group names, sorted alphabetically
-func SelectGroups() (groups []string) {
+// SelectTags - get all distinct, non-empty tags in use across all hosts,
+// sorted alphabetically. Each host's GROUPNAME column can hold several
+// comma-separated tags, so this reads the raw values and splits them in Go
+// rather than relying on SQL DISTINCT on the raw column.
+func SelectTags() (tags []string) {
 
+	var raw []string
 	tab := db.Table("now")
 	tab.
 		Where("\"GROUPNAME\" <> ?", "").
-		Distinct("\"GROUPNAME\"").
-		Order("\"GROUPNAME\" ASC").
-		Pluck("GROUPNAME", &groups)
+		Pluck("GROUPNAME", &raw)
 
-	return groups
+	seen := make(map[string]bool)
+	for _, csv := range raw {
+		for _, tag := range strings.Split(csv, ",") {
+			tag = strings.TrimSpace(tag)
+			if tag != "" && !seen[tag] {
+				seen[tag] = true
+				tags = append(tags, tag)
+			}
+		}
+	}
+	sort.Strings(tags)
+
+	return tags
 }

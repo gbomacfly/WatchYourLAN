@@ -8,7 +8,7 @@
 > [!NOTE]
 > **This is a fork of [aceberg/WatchYourLAN](https://github.com/aceberg/WatchYourLAN)**, created because the original project has seen very little activity lately. All credit for the original design and the vast majority of the codebase goes to [aceberg](https://github.com/aceberg) — this fork builds on that work rather than replacing it.
 >
-> Changes here so far: a Tailwind-based UI redesign (dark/light/system mode, grouping support in progress), an auto-updating MAC vendor database for `arp-scan`, a few scan/data bugfixes, and a Docker/Compose setup built around this fork's own image on `ghcr.io`. See [CHANGELOG.md](CHANGELOG.md) for the full list.
+> Changes here so far: a Tailwind-based UI redesign (dark/light/system mode), multi-tag support for hosts, an auto-updating MAC vendor database for `arp-scan`, a few scan/data bugfixes, and a Docker/Compose setup built around this fork's own image on `ghcr.io`. See [CHANGELOG.md](CHANGELOG.md) for the full list.
 >
 > Please consider supporting the original author too: [aceberg#donate](https://github.com/aceberg#donate).
 
@@ -172,7 +172,7 @@ use_db: sqlite
 Moved to [docs/API.md](docs/API.md)
 
 ### Integrations
-These are built against upstream `aceberg/WatchYourLAN` and haven't been verified against this fork's API additions (e.g. the `groups` endpoints):
+These are built against upstream `aceberg/WatchYourLAN` and haven't been verified against this fork's API additions (e.g. the `tags` endpoints):
 - [ArchLinux (AUR)](https://aur.archlinux.org/packages/watch-your-lan) by `gilcu3`
 - [Python API client](https://github.com/drwahl/py-watchyourlanclient) by [drwahl](https://github.com/drwahl)
 - [Umbrel](https://apps.umbrel.com/app/watch-your-lan) by [Jasper](https://github.com/ceramicwhite)

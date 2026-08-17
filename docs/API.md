@@ -60,6 +60,25 @@ Edit host with ID `id`. Can change `name`. `known` is optional, when set to `tog
 
 
 ```http
+GET /api/tags/:id/*name
+```
+Replace all tags on host `id` with a comma-separated list, e.g. `Network,IoT`. Pass an empty trailing segment (`/api/tags/5/`) to clear all tags on that host. Returns the updated host.
+<details>
+  <summary>Request example</summary>
+
+```bash
+curl http://0.0.0.0:8840/api/tags/5/Network,IoT
+```
+</details><br>
+
+
+```http
+GET /api/tags
+```
+Returns a sorted list of all distinct, non-empty tags currently in use across all hosts.
+
+
+```http
 GET /api/host/del/:id
 ```
 Remove host with ID `id`.
