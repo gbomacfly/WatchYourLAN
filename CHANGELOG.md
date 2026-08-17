@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Fork] - unreleased
 
+## [Fork 2.5.0] - 2026-08-17
+### Added
+- Open ports found by the port scanner now show a well-known service name (e.g. "22 SSH", "80 HTTP", "32400 Plex") next to the port number, with the full name in a hover tooltip, covering common IANA well-knowns plus self-hosted apps often found on a home/small office LAN
+
 ## [Fork 2.4.0] - 2026-08-17
 ### Added
 - The stat tiles above the host table (Gesamt/Online/Offline/Bekannt/Unbekannt) are now clickable and filter the table, with the active tile highlighted
