@@ -79,9 +79,8 @@ Configuration can be done through config file, GUI or environment variables. Var
 | TZ | Set your timezone for correct time | Europe/Berlin (in this fork's docker-compose.yml) |
 | HOST | Listen address | 0.0.0.0 |
 | PORT   | Port for web GUI | 8840 |
-| THEME | Any theme name from https://bootswatch.com in lowcase or [additional](https://github.com/aceberg/aceberg-bootswatch-fork). Only affects legacy Bootstrap pages that haven't been migrated to Tailwind yet | cyborg (in this fork's docker-compose.yml) |
+| THEME | Any [Bootswatch](https://bootswatch.com) theme name in lowcase. All themes plus bootstrap-icons are bundled directly in the binary (no internet access needed) - only affects legacy Bootstrap pages that haven't been migrated to Tailwind yet | cyborg (in this fork's docker-compose.yml) |
 | COLOR | `light`, `dark` or `system` (follows the browser's OS-level preference) | system (in this fork's docker-compose.yml) |
-| NODEPATH | Path to local node modules |  |
 | SHOUTRRR_URL | WatchYourLAN uses [Shoutrrr](https://github.com/nicholas-fedor/shoutrrr) to send notifications. It is already integrated, just needs a correct URL. Examples for Discord, Email, Gotify, Matrix, Ntfy, Pushover, Slack, Telegram, Generic Webhook and etc are [here](https://nicholas-fedor.github.io/shoutrrr/) | |
 
 ### Scan settings
@@ -140,7 +139,6 @@ influx_org: ""
 influx_skip_tls: false
 influx_token: ""
 log_level: info
-nodepath: ""
 pg_connect: ""
 port: "8840"
 prometheus_enable: false
@@ -161,32 +159,11 @@ use_db: sqlite
 | Key  | Description | Default |
 | --------  | ----------- | ------- |
 | -d | Path to config dir | /data/WatchYourLAN |
-| -n | Path to node modules (see below) | |
 
 </details>
 
-## Local network only
-<details>
-  <summary>Expand</summary>
-
-By default, this app pulls themes, icons and fonts from the internet. But, in some cases, it may be useful to have an independent from global network setup. aceberg maintains a separate [image](https://github.com/aceberg/my-dockerfiles/tree/main/node-bootstrap) with all necessary modules and fonts.
-Run with Docker:
-```sh
-docker run --name node-bootstrap          \
-    -p 8850:8850                          \
-    aceberg/node-bootstrap
-```
-```sh
-docker run --name watchyourlan \
-	-e "IFACES=$YOURIFACE" \
-	-e "TZ=$YOURTIMEZONE" \
-	--network="host" \
-	-v $DOCKERDATAPATH/watchyourlan:/data/WatchYourLAN \
-    ghcr.io/gbomacfly/watchyourlan -n "http://$YOUR_IP:8850"
-```
-Or use [docker-compose](docker-compose.yml) (the `node-bootstrap` service is included but commented out by default)
-
-</details>
+> [!NOTE]
+> This fork bundles all Bootswatch themes and bootstrap-icons directly in the binary, so the web GUI works fully offline - no CDN, no separate helper container needed.
 
 ## API & Integrations
 

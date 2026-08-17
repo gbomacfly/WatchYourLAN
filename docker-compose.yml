@@ -1,21 +1,9 @@
 services:
-  node-bootstrap:                     # optional, local themes and icons
-    image: aceberg/node-bootstrap
-    container_name: node-bootstrap
-    restart: unless-stopped
-    ports:
-    - 8850:8850
   watchyourlan:
     image: ghcr.io/gbomacfly/watchyourlan # GitHub Container Registry
     container_name: watchyourlan
     network_mode: "host"
     restart: unless-stopped
-    # NodePath is already set via the Config UI/config_v2.yaml (http://192.168.178.84:8850),
-    # so no need to also pass -n here. Uncomment the command line below only if you'd rather
-    # manage it via the command line/env instead of the Config UI:
-    # command: "-n http://YOUR_IP:8850"   # put your server IP or DNS name here
-    depends_on:
-    - node-bootstrap
     # dns:                                 # optional, e.g. a local Pi-hole/router, set DNS_IP in .env
     # - "${DNS_IP}"
     volumes:

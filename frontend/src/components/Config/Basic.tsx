@@ -58,10 +58,6 @@ function Basic() {
                </td>
             </tr>
             <tr>
-              <td>Local node-bootstrap URL</td>
-              <td><input name="node" type="text" class="form-control" value={appConfig().NodePath}></input></td>
-            </tr>
-            <tr>
               <td>Shoutrrr URL</td>
               <td>
                 <textarea name="shout" class="form-control" style="width: 100%;" rows="3" wrap="soft">{appConfig().ShoutURL}</textarea>

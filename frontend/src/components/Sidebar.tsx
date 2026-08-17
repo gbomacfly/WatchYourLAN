@@ -33,44 +33,22 @@ function Sidebar() {
     }
   };
 
-  const cdnThemePath = (theme: string) =>
-    "https://cdn.jsdelivr.net/npm/aceberg-bootswatch-fork@v5.3.3-2/dist/"+theme+"/bootstrap.min.css";
-  const cdnIconsPath = () =>
-    "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css";
-
+  // Bootswatch themes + bootstrap-icons are embedded directly in the Go binary
+  // (backend/internal/web/public/vendor/) and served from /fs/public/vendor/ - no
+  // CDN, no separate node-bootstrap helper container needed.
   const setCurrentTheme = async () => {
     setAppConfig(await apiGetConfig());
 
     const theme = appConfig().Theme?appConfig().Theme:"sand";
     const color = (appConfig().Color as ColorMode) || "dark";
 
-    if (appConfig().NodePath == '') {
-      setThemePath(cdnThemePath(theme));
-      setIconsPath(cdnIconsPath());
-    } else {
-      setThemePath(appConfig().NodePath+"/node_modules/bootswatch/dist/"+theme+"/bootstrap.min.css");
-      setIconsPath(appConfig().NodePath+"/node_modules/bootstrap-icons/font/bootstrap-icons.css");
-    }
+    setThemePath("/fs/public/vendor/bootswatch/"+theme+"/bootstrap.min.css");
+    setIconsPath("/fs/public/vendor/bootstrap-icons/bootstrap-icons.css");
 
     setColorMode(color);
     applyColor(color);
   }
   setCurrentTheme();
-
-  // If a configured NodePath is stale/unreachable (e.g. the node-bootstrap helper
-  // container isn't running anymore), don't leave the whole app unstyled - fall back
-  // to the CDN instead. Guarded so this only ever fires once per stylesheet.
-  const handleThemeError = () => {
-    if (appConfig().NodePath != '' && !themePath().startsWith("https://cdn.jsdelivr.net")) {
-      const theme = appConfig().Theme?appConfig().Theme:"sand";
-      setThemePath(cdnThemePath(theme));
-    }
-  };
-  const handleIconsError = () => {
-    if (appConfig().NodePath != '' && !iconsPath().startsWith("https://cdn.jsdelivr.net")) {
-      setIconsPath(cdnIconsPath());
-    }
-  };
 
   onMount(() => {
     prefersDark.addEventListener('change', handleSystemChange);
@@ -100,8 +78,8 @@ function Sidebar() {
   return (
     <>
     {/* legacy stylesheets for pages not yet migrated to Tailwind */}
-    <link rel="stylesheet" href={iconsPath()} onError={handleIconsError}></link>
-    <link rel="stylesheet" href={themePath()} onError={handleThemeError}></link>
+    <link rel="stylesheet" href={iconsPath()}></link>
+    <link rel="stylesheet" href={themePath()}></link>
 
     <aside class="w-60 shrink-0 h-screen sticky top-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
       <div class="h-16 flex items-center gap-3 px-5 border-b border-slate-200 dark:border-slate-800">

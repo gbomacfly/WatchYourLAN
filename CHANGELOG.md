@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - Go module renamed from `github.com/aceberg/WatchYourLAN` to `github.com/gbomacfly/WatchYourLAN`
 - `COLOR` config gained a `system` option, in addition to `light`/`dark`
 - `docker-compose.yml` volumes now default to `./data` next to the compose file, instead of `~/.dockerdata`
+- All Bootswatch themes and bootstrap-icons are now bundled directly in the binary instead of being pulled from a CDN or the optional `node-bootstrap` helper container - the web GUI now works fully offline out of the box. The `NODEPATH`/`-n` config option and the `node-bootstrap` compose service are gone.
 
 ### Fixed
 - Hardware/vendor field was only ever set on a host's first discovery and never refreshed on later scans, even after the MAC vendor database improved. It's now refreshed on every scan.

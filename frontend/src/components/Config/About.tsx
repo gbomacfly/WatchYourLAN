@@ -24,10 +24,6 @@ function About() {
             <td><a href="/swagger/index.html" target="_blank">/swagger/index.html</a></td>
           </tr>
           <tr>
-            <td><b>Local node-bootstrap URL</b></td>
-            <td>local themes and fonts (optional). If empty, the app will pull everything from <code>cdn</code></td>
-          </tr>
-          <tr>
             <td><b>Shoutrrr URL</b></td>
             <td>provides notifications to Discord, Email, Gotify, Telegram and other services. <a href="https://shoutrrr.nickfedor.com/services/overview/" target="_blank">Link to documentation</a></td>
           </tr>
