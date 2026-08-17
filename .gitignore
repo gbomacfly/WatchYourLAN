@@ -8,4 +8,9 @@ tmp/
 
 # Temporary staging dirs used to transfer file changes into this repo
 _new_files*/
+_to_delete/
+
+# SMB/network-share transient files (e.g. from the mounted raid on gbodocker)
+.smbdelete*
+.DS_Store
 
