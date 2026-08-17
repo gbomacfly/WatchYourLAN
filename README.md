@@ -79,7 +79,6 @@ Configuration can be done through config file, GUI or environment variables. Var
 | TZ | Set your timezone for correct time | Europe/Berlin (in this fork's docker-compose.yml) |
 | HOST | Listen address | 0.0.0.0 |
 | PORT   | Port for web GUI | 8840 |
-| THEME | Any [Bootswatch](https://bootswatch.com) theme name in lowcase. All themes plus bootstrap-icons are bundled directly in the binary (no internet access needed) - only affects legacy Bootstrap pages that haven't been migrated to Tailwind yet | cyborg (in this fork's docker-compose.yml) |
 | COLOR | `light`, `dark` or `system` (follows the browser's OS-level preference) | system (in this fork's docker-compose.yml) |
 | SHOUTRRR_URL | WatchYourLAN uses [Shoutrrr](https://github.com/nicholas-fedor/shoutrrr) to send notifications. It is already integrated, just needs a correct URL. Examples for Discord, Email, Gotify, Matrix, Ntfy, Pushover, Slack, Telegram, Generic Webhook and etc are [here](https://nicholas-fedor.github.io/shoutrrr/) | |
 
@@ -143,7 +142,6 @@ pg_connect: ""
 port: "8840"
 prometheus_enable: false
 shoutrrr_url: "gotify://192.168.0.1:8083/AwQqpAae.rrl5Ob/?title=Unknown host detected&DisableTLS=yes"
-theme: cyborg
 timeout: 60
 trim_hist: 48
 use_db: sqlite
@@ -163,7 +161,7 @@ use_db: sqlite
 </details>
 
 > [!NOTE]
-> This fork bundles all Bootswatch themes and bootstrap-icons directly in the binary, so the web GUI works fully offline - no CDN, no separate helper container needed.
+> The web GUI is fully offline-capable - no CDN or external assets are loaded at runtime.
 
 ## API & Integrations
 
@@ -188,7 +186,6 @@ These are built against upstream `aceberg/WatchYourLAN` and haven't been verifie
 - [aceberg](https://github.com/aceberg) for the original WatchYourLAN, which this fork is built on
 - All go packages listed in [dependencies](https://github.com/gbomacfly/WatchYourLAN/network/dependencies)
 - Favicon and logo: [Access point icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/access-point)
-- [Bootstrap](https://getbootstrap.com/) and [Tailwind CSS](https://tailwindcss.com/)
-- Themes: [Free themes for Bootstrap](https://bootswatch.com)
+- [Tailwind CSS](https://tailwindcss.com/)
 
 </details>

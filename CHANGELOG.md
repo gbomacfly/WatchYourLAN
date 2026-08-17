@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Fork] - unreleased
 
+## [Fork 2.3.0] - 2026-08-17
+### Changed
+- Config, History and Host detail pages restyled from Bootstrap to Tailwind CSS, matching the rest of the UI (cards, inputs, buttons, dark/light mode). This was the last batch of pages still using Bootstrap.
+
+### Removed
+- Bootstrap is gone entirely - no page renders any Bootstrap markup anymore, so the Bootswatch theme bundle and bootstrap-icons introduced in 2.2.0 (~7.6 MB in the binary) are removed again, along with the `THEME` config option and the Config page's theme picker. `COLOR` (light/dark/system) is unaffected and still controls the UI.
+
 ## [Fork 2.2.0] - 2026-08-17
 ### Added
 - Tailwind CSS-based UI redesign: fixed sidebar layout, stat tiles, dark/light/system color mode toggle (phased rollout, in progress)

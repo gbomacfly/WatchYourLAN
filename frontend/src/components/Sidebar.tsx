@@ -7,8 +7,6 @@ type ColorMode = "light" | "dark" | "system";
 
 function Sidebar() {
 
-  const [themePath, setThemePath] = createSignal('');
-  const [iconsPath, setIconsPath] = createSignal('');
   const [colorMode, setColorMode] = createSignal<ColorMode>("dark");
 
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
@@ -18,13 +16,7 @@ function Sidebar() {
 
   const applyColor = (mode: ColorMode) => {
     const resolved = resolveColor(mode);
-    // Tailwind (new UI, class strategy)
     document.documentElement.classList.toggle("dark", resolved === "dark");
-    // Bootstrap/Bootswatch (legacy pages not yet migrated, still needed until Phase 5)
-    document.documentElement.setAttribute("data-bs-theme", resolved);
-    resolved === "dark"
-      ? document.documentElement.style.setProperty('--transparent-light', '#ffffff15')
-      : document.documentElement.style.setProperty('--transparent-light', '#00000015');
   };
 
   const handleSystemChange = () => {
@@ -33,17 +25,10 @@ function Sidebar() {
     }
   };
 
-  // Bootswatch themes + bootstrap-icons are embedded directly in the Go binary
-  // (backend/internal/web/public/vendor/) and served from /fs/public/vendor/ - no
-  // CDN, no separate node-bootstrap helper container needed.
   const setCurrentTheme = async () => {
     setAppConfig(await apiGetConfig());
 
-    const theme = appConfig().Theme?appConfig().Theme:"sand";
     const color = (appConfig().Color as ColorMode) || "dark";
-
-    setThemePath("/fs/public/vendor/bootswatch/"+theme+"/bootstrap.min.css");
-    setIconsPath("/fs/public/vendor/bootstrap-icons/bootstrap-icons.css");
 
     setColorMode(color);
     applyColor(color);
@@ -76,11 +61,6 @@ function Sidebar() {
   };
 
   return (
-    <>
-    {/* legacy stylesheets for pages not yet migrated to Tailwind */}
-    <link rel="stylesheet" href={iconsPath()}></link>
-    <link rel="stylesheet" href={themePath()}></link>
-
     <aside class="w-60 shrink-0 h-screen sticky top-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
       <div class="h-16 flex items-center gap-3 px-5 border-b border-slate-200 dark:border-slate-800">
         <a href="/" class="flex items-center gap-3 no-underline">
@@ -178,7 +158,6 @@ function Sidebar() {
         </button>
       </div>
     </aside>
-    </>
   )
 };
 

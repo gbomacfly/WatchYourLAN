@@ -21,7 +21,6 @@ services:
       PORT: "${PORT:-8840}"              # optional, default: 8840
       TIMEOUT: "${TIMEOUT:-120}"         # optional, time in seconds, default: 120
       SHOUTRRR_URL: "${SHOUTRRR_URL:-}"  # optional, set url to notify
-      THEME: "${THEME:-cyborg}"          # optional
       COLOR: "${COLOR:-system}"          # optional
 
 # WARNING! WYL needs 'host' network mode to work. So, WYL port will be exposed on the

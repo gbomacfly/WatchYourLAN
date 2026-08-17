@@ -5,7 +5,6 @@ import { inputClass, labelClass, primaryBtnClass, secondaryBtnClass, selectClass
 
 function Basic() {
 
-  const themes = ["cerulean", "cosmo", "cyborg", "darkly", "emerald", "flatly", "grass", "grayscale", "journal", "litera", "lumen", "lux", "materia", "minty", "morph", "ocean", "pulse", "quartz", "sand", "sandstone", "simplex", "sketchy", "slate", "solar", "spacelab", "superhero", "united", "vapor", "wood", "yeti", "zephyr"];
   const colors = ["dark", "light", "system"];
 
   const handleTestNotify = () => {
@@ -24,19 +23,6 @@ function Basic() {
           <div>
             <label class={labelClass}>Port</label>
             <input name="port" type="text" class={inputClass} value={appConfig().Port}></input>
-          </div>
-          <div>
-            <label class={labelClass}>Theme</label>
-            <select name="theme" class={selectClass}>
-            <For each={themes}>{theme =>
-              <Show
-                when={theme == appConfig().Theme}
-                fallback={<option value={theme}>{theme}</option>}
-              >
-                <option value={theme} selected>{theme}</option>
-              </Show>
-            }</For>
-            </select>
           </div>
           <div>
             <label class={labelClass}>Color mode</label>
