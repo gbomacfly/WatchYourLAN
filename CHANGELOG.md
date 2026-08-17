@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 > This is [gbomacfly/WatchYourLAN](https://github.com/gbomacfly/WatchYourLAN), a fork of [aceberg/WatchYourLAN](https://github.com/aceberg/WatchYourLAN). Entries from `v2.1.4` and earlier are upstream's original history. Everything under **Fork** below is specific to this repo.
 
 ## [Fork] - unreleased
+
+## [Fork 2.2.0] - 2026-08-17
 ### Added
 - Tailwind CSS-based UI redesign: fixed sidebar layout, stat tiles, dark/light/system color mode toggle (phased rollout, in progress)
 - `Group` field on hosts, plus `GET /api/group/:id/:name` and `GET /api/groups` API endpoints, wired into the Sidebar (group filter) and edit mode (assign group to selected hosts)
@@ -20,6 +22,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Hardware/vendor field was only ever set on a host's first discovery and never refreshed on later scans, even after the MAC vendor database improved. It's now refreshed on every scan.
+- History page showed an empty list after a hard reload (only a filter click, e.g. "Zurücksetzen", brought the list back). The page kept its own one-time, non-reactive snapshot of the host list instead of reading the reactive store directly, so it never picked up the async initial data load.
+- Row-selection checkbox now sits before the online-status indicator instead of at the far right.
 
 ## [v2.1.4] - 2025-09-10
 ### Added
