@@ -41,6 +41,14 @@ function TableRow(_props: any) {
       <td class="px-3.5 py-2 text-xs text-slate-400 tabular-nums">{_props.index}.</td>
       <td class="px-3.5 py-2 whitespace-nowrap">
         <div class="flex items-center gap-2.5">
+          <Show when={editNames()}>
+            <input
+              type="checkbox"
+              checked={selectedIDs().includes(_props.host.ID)}
+              onChange={e => handleCheck((e.target as HTMLInputElement).checked)}
+              class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-brand-600 focus:ring-brand-500 shrink-0"
+            />
+          </Show>
           <span class={"w-2 h-2 rounded-full shrink-0 " + (online ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600")} title={online ? "Online" : "Offline"}></span>
           <Show
             when={editNames()}
@@ -80,18 +88,11 @@ function TableRow(_props: any) {
       </td>
       <td class="px-3.5 py-2 text-right">
         <Show
-          when={editNames()}
-          fallback={
+          when={!editNames()}
+        >
           <a href={"/host/" + _props.host.ID} title="Details" class="inline-flex w-7 h-7 rounded-lg items-center justify-center text-slate-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/30">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v.01M12 12v.01M12 18v.01"/></svg>
-          </a>}
-        >
-          <input
-            type="checkbox"
-            checked={selectedIDs().includes(_props.host.ID)}
-            onChange={e => handleCheck((e.target as HTMLInputElement).checked)}
-            class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-brand-600 focus:ring-brand-500"
-          />
+          </a>
         </Show>
       </td>
     </tr>
