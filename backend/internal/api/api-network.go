@@ -3,6 +3,7 @@ package api
 import (
 	"log/slog"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -46,14 +47,24 @@ func getPortBanner(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, banner)
 }
 
+// portScanSaveRequest is the body for savePortScan: the ports actually found open,
+// plus the [Begin, End] range that was scanned - so a scan of a smaller range (e.g.
+// re-checking just 1-1024) only replaces results within that range instead of wiping
+// out ports found by an earlier, wider scan.
+type portScanSaveRequest struct {
+	Begin int
+	End   int
+	Ports []models.PortScanEntry
+}
+
 // savePortScan godoc
 // @Summary      Save port scan results
-// @Description  Persist a host's port scan results (open ports + banners) so they can be shown again without re-scanning. The scan timestamp is set server-side to the time of saving.
+// @Description  Persist the results of scanning a port range (open ports + banners) for a host, merging them into any previously saved results: existing entries inside [begin, end] are replaced, entries outside that range are kept as-is. The scan timestamp is set server-side to the time of saving.
 // @Tags         network
 // @Accept       json
 // @Produce      json
-// @Param        id    path      string                  true  "Host ID"
-// @Param        ports body      []models.PortScanEntry  true  "Open ports found, with banners"
+// @Param        id    path      string                true  "Host ID"
+// @Param        scan  body      portScanSaveRequest    true  "Scanned range and the open ports found within it"
 // @Success      200   {object}  models.Host
 // @Router       /portscan/{id} [post]
 func savePortScan(c *gin.Context) {
@@ -61,19 +72,30 @@ func savePortScan(c *gin.Context) {
 	idStr := c.Param("id")
 	host := getHostByID(idStr) // functions.go
 
-	var ports []models.PortScanEntry
-	if err := c.ShouldBindJSON(&ports); check.IfError(err) {
+	var req portScanSaveRequest
+	if err := c.ShouldBindJSON(&req); check.IfError(err) {
 		c.IndentedJSON(http.StatusBadRequest, "invalid port scan payload")
 		return
 	}
 
+	merged := make([]models.PortScanEntry, 0, len(host.PortScan.Ports)+len(req.Ports))
+	for _, p := range host.PortScan.Ports {
+		// Keep previously found ports outside the range that was just scanned -
+		// a partial re-scan shouldn't erase results it never looked at.
+		if p.Port < req.Begin || p.Port > req.End {
+			merged = append(merged, p)
+		}
+	}
+	merged = append(merged, req.Ports...)
+	sort.Slice(merged, func(i, j int) bool { return merged[i].Port < merged[j].Port })
+
 	host.PortScan = models.PortScanResult{
 		ScannedAt: time.Now().Format("2006-01-02 15:04:05"),
-		Ports:     ports,
+		Ports:     merged,
 	}
 
 	gdb.Update("now", host)
-	slog.Info("Saved port scan results", "host", host.Name, "ports", len(ports))
+	slog.Info("Saved port scan results", "host", host.Name, "range", []int{req.Begin, req.End}, "found", len(req.Ports), "total", len(merged))
 
 	c.IndentedJSON(http.StatusOK, host)
 }

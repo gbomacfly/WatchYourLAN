@@ -56,14 +56,14 @@ curl http://0.0.0.0:8840/api/banner/192.168.2.2/22
 ```http
 POST /api/portscan/:id
 ```
-Save port scan results for host `id`, so they can be shown again later without re-scanning - the frontend calls this after a port scan finishes. Body is a JSON array of `{"Port": int, "Banner": string}`. The scan timestamp is set server-side. Returns the updated host, which includes the saved results under `PortScan` (`ScannedAt` + `Ports`) - also returned as part of `/api/host/:id` and `/api/all`.
+Save port scan results for host `id`, so they can be shown again later without re-scanning - the frontend calls this after a port scan finishes. Body is `{"Begin": int, "End": int, "Ports": [{"Port": int, "Banner": string}, ...]}`, where `Begin`/`End` is the range that was actually scanned and `Ports` the open ports found within it. Only saved results *inside* that range are replaced - anything previously found outside it (by an earlier, differently-ranged scan) is left untouched. The scan timestamp is set server-side. Returns the updated host, which includes the saved results under `PortScan` (`ScannedAt` + `Ports`) - also returned as part of `/api/host/:id` and `/api/all`.
 <details>
   <summary>Request example</summary>
 
 ```bash
 curl -X POST http://0.0.0.0:8840/api/portscan/5 \
   -H "Content-Type: application/json" \
-  -d '[{"Port": 22, "Banner": "SSH-2.0-OpenSSH_9.6"}, {"Port": 80, "Banner": ""}]'
+  -d '{"Begin": 1, "End": 1024, "Ports": [{"Port": 22, "Banner": "SSH-2.0-OpenSSH_9.6"}, {"Port": 80, "Banner": ""}]}'
 ```
 </details><br>
 

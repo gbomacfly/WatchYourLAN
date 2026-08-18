@@ -116,13 +116,15 @@ export const apiWOL = async (mac:string) => {
   return res;
 };
 
-export const apiSavePortScan = async (id:number, ports:{Port:number, Banner:string}[]) => {
+// begin/end is the port range that was actually scanned - the backend only replaces
+// previously saved results within that range, leaving ports outside it untouched.
+export const apiSavePortScan = async (id:number, begin:number, end:number, ports:{Port:number, Banner:string}[]) => {
 
   const url = apiPath+'/api/portscan/'+id;
   const res = await (await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(ports),
+    body: JSON.stringify({ Begin: begin, End: end, Ports: ports }),
   })).json();
 
   return res;

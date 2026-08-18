@@ -48,14 +48,19 @@ function Ping(_props: any) {
     return banner;
   };
 
-  const persistResults = async () => {
+  // Sends only the ports found within [begin, end] - the backend merges those into any
+  // previously saved results, replacing just that range and leaving ports outside it
+  // (found by an earlier, wider or differently-ranged scan) untouched.
+  const persistResults = async (begin: number, end: number) => {
     if (!_props.host?.ID) {
       return;
     }
     setSaving(true);
     try {
-      const ports = foundPorts().map(port => ({ Port: port, Banner: banners()[port] ?? "" }));
-      const updated = await apiSavePortScan(_props.host.ID, ports);
+      const ports = foundPorts()
+        .filter(p => p >= begin && p <= end)
+        .map(port => ({ Port: port, Banner: banners()[port] ?? "" }));
+      const updated = await apiSavePortScan(_props.host.ID, begin, end, ports);
       setScannedAt(updated?.PortScan?.ScannedAt ?? "");
     } catch (err) {
       console.error("Failed to save port scan results", err);
@@ -66,9 +71,6 @@ function Ping(_props: any) {
 
   const handleScan = async () => {
     stop = false;
-    setFoundPorts([]);
-    setBanners({});
-    setScannedAt("");
 
     let begin = Number(beginStr());
     if (Number.isNaN(begin) || begin < 1 || begin > 65535) {
@@ -78,6 +80,14 @@ function Ping(_props: any) {
     if (Number.isNaN(end) || end < 1 || end > 65535) {
       end = 65535;
     }
+
+    // Only clear the ports within the range about to be (re)scanned - ports already
+    // found outside it (from an earlier scan of a different range) stay displayed.
+    const keptPorts = foundPorts().filter(p => p < begin || p > end);
+    const keptBanners = banners();
+    setFoundPorts(keptPorts);
+    setBanners(Object.fromEntries(keptPorts.map(p => [p, keptBanners[p]])));
+    setScannedAt("");
 
     const bannerFetches: Promise<string>[] = [];
 
@@ -90,7 +100,7 @@ function Ping(_props: any) {
       setCurPort(i.toString());
       portOpened = await apiPortScan(_props.IP, i);
       if (portOpened) {
-        setFoundPorts([...foundPorts(), i]);
+        setFoundPorts([...foundPorts(), i].sort((a, b) => a - b));
         bannerFetches.push(fetchBanner(i)); // fire-and-forget, doesn't block the scan
       }
     }
@@ -102,7 +112,7 @@ function Ping(_props: any) {
     if (!stop) {
       setCurPort("");
       await Promise.all(bannerFetches);
-      await persistResults();
+      await persistResults(begin, end);
     }
   };
 
