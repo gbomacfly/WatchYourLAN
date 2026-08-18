@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 ### Planned
 - Config-based MAC vendor overrides: let users map custom MAC prefixes to their own names for hosts the OUI database can't identify (homemade hardware, Proxmox VMs, ...) - see upstream [#185](https://github.com/aceberg/WatchYourLAN/issues/185)
 
+## [Fork 2.7.3] - 2026-08-18
+### Fixed
+- Reverse-DNS lookups (used when loading a single host's detail page, and for naming newly discovered hosts during a scan) had no timeout - a slow or unreachable DNS server (e.g. no PTR records on a home network) could block the request indefinitely. The host detail page's new "Lade..." state made this pre-existing hang newly visible as a page that never finishes loading. Lookups now give up after 2 seconds.
+
 ## [Fork 2.7.2] - 2026-08-18
 ### Fixed
 - Host detail page could end up rendering with an undefined host object (e.g. while the `/api/host/:id` request was still in flight), which crashed the tag editor and any other interaction on the page - and, since the crash happened mid-render, could leave the app looking "stuck" on subsequent client-side navigation (URL changes, content doesn't) until a full reload. The page now waits for the host to actually be loaded before rendering, with a small "Lade..." placeholder in the meantime, and tag-saving is guarded against firing without a valid host.
