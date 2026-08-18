@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 ### Planned
 - Config-based MAC vendor overrides: let users map custom MAC prefixes to their own names for hosts the OUI database can't identify (homemade hardware, Proxmox VMs, ...) - see upstream [#185](https://github.com/aceberg/WatchYourLAN/issues/185)
 
+## [Fork 2.7.6] - 2026-08-18
+### Added
+- Host detail page: the tag input now autocompletes as you type - the dropdown filters down to matching existing tags instead of only offering the full list via the arrow button. Escape closes it.
+
 ## [Fork 2.7.5] - 2026-08-18
 ### Fixed
 - Host detail page crashed with "y is not a function or its return value is not iterable" and silently dropped the tag pills, because the previous release only shipped 2 of the 6 built frontend JS chunks. Vite assigns short internal names to shared exports on every build, even for files whose source didn't change, so the un-updated chunks (`MacHistory.js`, `Config.js`, `History.js`, `formStyles.js`) ended up importing names that no longer existed in the newly-built `index.js`. The built JS chunks are always a matched set now - all of them ship together on every release, not just the ones with source changes.

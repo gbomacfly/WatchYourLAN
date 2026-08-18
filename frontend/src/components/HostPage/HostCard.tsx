@@ -28,7 +28,15 @@ function TagsEditor(_props: any) {
     setHostTags([..._props.host.Tags ?? []]);
   });
 
-  const availableTags = () => allTags().filter(t => !hostTags().includes(t));
+  // Filters out tags already on this host, and - while the user is typing -
+  // further narrows the list down to tags matching what's been typed so far,
+  // so the dropdown doubles as an autocomplete suggestion list.
+  const availableTags = () => {
+    const query = newTag().trim().toLowerCase();
+    return allTags().filter(t =>
+      !hostTags().includes(t) && (query === "" || t.toLowerCase().includes(query))
+    );
+  };
 
   const persist = async (next: string[]) => {
     if (!_props.host?.ID) {
@@ -60,10 +68,22 @@ function TagsEditor(_props: any) {
     setDropdownOpen(false);
   };
 
+  const handleTagInput = (value: string) => {
+    setNewTag(value);
+    // Show the autocomplete suggestions as soon as there's something to
+    // match against; an empty field falls back to the full tag list, so
+    // leave the dropdown as-is rather than forcing it shut mid-edit.
+    if (value.trim() !== "") {
+      setDropdownOpen(true);
+    }
+  };
+
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
       handleAddCustom();
+    } else if (e.key === "Escape") {
+      setDropdownOpen(false);
     }
   };
 
@@ -106,7 +126,8 @@ function TagsEditor(_props: any) {
           value={newTag()}
           placeholder="Tag hinzufügen..."
           title="Neuen Tag eingeben und Enter drücken"
-          onInput={e => setNewTag((e.target as HTMLInputElement).value)}
+          onInput={e => handleTagInput((e.target as HTMLInputElement).value)}
+          onFocus={() => { if (newTag().trim() !== "") setDropdownOpen(true); }}
           onKeyDown={handleKeyDown}
         ></input>
         <button
@@ -121,7 +142,9 @@ function TagsEditor(_props: any) {
         <Show when={dropdownOpen()}>
           <div class="absolute right-0 top-full mt-1 z-10 w-48 max-h-56 overflow-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg py-1">
             <Show when={availableTags().length > 0} fallback={
-              <div class="px-3 py-1.5 text-xs text-slate-400 dark:text-slate-500 italic">Keine weiteren Tags</div>
+              <div class="px-3 py-1.5 text-xs text-slate-400 dark:text-slate-500 italic">
+                {newTag().trim() !== "" ? "Keine passenden Tags" : "Keine weiteren Tags"}
+              </div>
             }>
               <For each={availableTags()}>
                 {(tag) => (
