@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 ### Planned
 - Config-based MAC vendor overrides: let users map custom MAC prefixes to their own names for hosts the OUI database can't identify (homemade hardware, Proxmox VMs, ...) - see upstream [#185](https://github.com/aceberg/WatchYourLAN/issues/185)
 
+## [Fork 2.7.1] - 2026-08-18
+### Changed
+- Host detail page: tags are now shown as small removable pills, with a dropdown to pick from existing tags (click to add) plus a text field to add a brand new one. Replaces the plain comma-separated text field, which also wasn't reliably reflecting a host's already-assigned tags.
+
 ## [Fork 2.7.0] - 2026-08-17
 ### Added
 - Hosts can now have multiple free-form tags instead of a single group, filterable in the sidebar and editable per-host (Host detail page) or in bulk (select hosts, type comma-separated tags, assign). Closes upstream [#152](https://github.com/aceberg/WatchYourLAN/issues/152).
