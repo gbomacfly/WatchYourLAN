@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 ### Planned
 - Config-based MAC vendor overrides: let users map custom MAC prefixes to their own names for hosts the OUI database can't identify (homemade hardware, Proxmox VMs, ...) - see upstream [#185](https://github.com/aceberg/WatchYourLAN/issues/185)
 
+## [Fork 2.7.2] - 2026-08-18
+### Fixed
+- Host detail page could end up rendering with an undefined host object (e.g. while the `/api/host/:id` request was still in flight), which crashed the tag editor and any other interaction on the page - and, since the crash happened mid-render, could leave the app looking "stuck" on subsequent client-side navigation (URL changes, content doesn't) until a full reload. The page now waits for the host to actually be loaded before rendering, with a small "Lade..." placeholder in the meantime, and tag-saving is guarded against firing without a valid host.
+
 ## [Fork 2.7.1] - 2026-08-18
 ### Changed
 - Host detail page: tags are now shown as small removable pills, with a dropdown to pick from existing tags (click to add) plus a text field to add a brand new one. Replaces the plain comma-separated text field, which also wasn't reliably reflecting a host's already-assigned tags.

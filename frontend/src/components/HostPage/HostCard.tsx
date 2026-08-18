@@ -31,8 +31,15 @@ function TagsEditor(_props: any) {
   const availableTags = () => allTags().filter(t => !hostTags().includes(t));
 
   const persist = async (next: string[]) => {
+    if (!_props.host?.ID) {
+      return;
+    }
     setHostTags(next);
-    await apiSetTags(_props.host.ID, next);
+    try {
+      await apiSetTags(_props.host.ID, next);
+    } catch (err) {
+      console.error("Failed to save tags", err);
+    }
   };
 
   const addTag = (tag: string) => {
