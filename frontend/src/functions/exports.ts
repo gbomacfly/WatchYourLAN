@@ -1,6 +1,16 @@
 import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 
+export interface PortScanEntry {
+	Port:   number;
+	Banner: string;
+}
+
+export interface PortScanResult {
+	ScannedAt: string;
+	Ports:     PortScanEntry[];
+}
+
 export interface Host {
 	ID:    number;
 	Name:  string;
@@ -13,6 +23,7 @@ export interface Host {
 	Known: number;
 	Now:   number;
 	Tags:  string[];
+	PortScan: PortScanResult;
 };
 
 export interface Conf {
@@ -54,6 +65,7 @@ export const emptyHost:Host = {
 	Known: 0,
 	Now:   0,
 	Tags:  [],
+	PortScan: { ScannedAt: "", Ports: [] },
 };
 
 export const emptyConf:Conf = {

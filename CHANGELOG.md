@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 ### Planned
 - Config-based MAC vendor overrides: let users map custom MAC prefixes to their own names for hosts the OUI database can't identify (homemade hardware, Proxmox VMs, ...) - see upstream [#185](https://github.com/aceberg/WatchYourLAN/issues/185)
 
+## [Fork 2.8.0] - 2026-08-18
+### Added
+- Port scan results (open ports + banners) are now saved per host once a scan finishes, with the timestamp of the last scan. Reopening a host's detail page shows the last results right away instead of an empty list - a new scan (partial range or full) can still be started at any time and overwrites the saved results once it completes. A scan that's stopped/paused mid-way is not saved until it's let run to completion. New endpoint: `POST /api/portscan/:id`.
+
 ## [Fork 2.7.6] - 2026-08-18
 ### Added
 - Host detail page: the tag input now autocompletes as you type - the dropdown filters down to matching existing tags instead of only offering the full list via the arrow button. Escape closes it.

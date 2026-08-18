@@ -36,7 +36,7 @@ function HostPage() {
         <div class="flex flex-col gap-4">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
             <HostCard host={host()}></HostCard>
-            <Ping IP={host().IP}></Ping>
+            <Ping IP={host().IP} host={host()}></Ping>
           </div>
           <HistCard mac={host().Mac}></HistCard>
         </div>

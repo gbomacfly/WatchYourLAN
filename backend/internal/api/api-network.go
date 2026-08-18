@@ -3,11 +3,14 @@ package api
 import (
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/linde12/gowol"
 
 	"github.com/gbomacfly/WatchYourLAN/internal/check"
+	"github.com/gbomacfly/WatchYourLAN/internal/gdb"
+	"github.com/gbomacfly/WatchYourLAN/internal/models"
 	"github.com/gbomacfly/WatchYourLAN/internal/portscan"
 )
 
@@ -41,6 +44,38 @@ func getPortBanner(c *gin.Context) {
 	port := c.Param("port")
 	banner := portscan.GrabBanner(addr, port)
 	c.IndentedJSON(http.StatusOK, banner)
+}
+
+// savePortScan godoc
+// @Summary      Save port scan results
+// @Description  Persist a host's port scan results (open ports + banners) so they can be shown again without re-scanning. The scan timestamp is set server-side to the time of saving.
+// @Tags         network
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string                  true  "Host ID"
+// @Param        ports body      []models.PortScanEntry  true  "Open ports found, with banners"
+// @Success      200   {object}  models.Host
+// @Router       /portscan/{id} [post]
+func savePortScan(c *gin.Context) {
+
+	idStr := c.Param("id")
+	host := getHostByID(idStr) // functions.go
+
+	var ports []models.PortScanEntry
+	if err := c.ShouldBindJSON(&ports); check.IfError(err) {
+		c.IndentedJSON(http.StatusBadRequest, "invalid port scan payload")
+		return
+	}
+
+	host.PortScan = models.PortScanResult{
+		ScannedAt: time.Now().Format("2006-01-02 15:04:05"),
+		Ports:     ports,
+	}
+
+	gdb.Update("now", host)
+	slog.Info("Saved port scan results", "host", host.Name, "ports", len(ports))
+
+	c.IndentedJSON(http.StatusOK, host)
 }
 
 // sendWOL godoc

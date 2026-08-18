@@ -115,3 +115,15 @@ export const apiWOL = async (mac:string) => {
 
   return res;
 };
+
+export const apiSavePortScan = async (id:number, ports:{Port:number, Banner:string}[]) => {
+
+  const url = apiPath+'/api/portscan/'+id;
+  const res = await (await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(ports),
+  })).json();
+
+  return res;
+};

@@ -34,6 +34,7 @@ func Routes(router *gin.Engine) {
 		r0.GET("/port/:addr/:port", getPortState)    // api-network.go
 		r0.GET("/banner/:addr/:port", getPortBanner) // api-network.go
 		r0.GET("/wol/:mac", sendWOL)                 // api-network.go
+		r0.POST("/portscan/:id", savePortScan)       // api-network.go
 
 		r0.POST("/config/", saveConfigHandler)                // config.go
 		r0.POST("/config_settings/", saveSettingsHandler)     // config.go

@@ -54,6 +54,21 @@ curl http://0.0.0.0:8840/api/banner/192.168.2.2/22
 
 
 ```http
+POST /api/portscan/:id
+```
+Save port scan results for host `id`, so they can be shown again later without re-scanning - the frontend calls this after a port scan finishes. Body is a JSON array of `{"Port": int, "Banner": string}`. The scan timestamp is set server-side. Returns the updated host, which includes the saved results under `PortScan` (`ScannedAt` + `Ports`) - also returned as part of `/api/host/:id` and `/api/all`.
+<details>
+  <summary>Request example</summary>
+
+```bash
+curl -X POST http://0.0.0.0:8840/api/portscan/5 \
+  -H "Content-Type: application/json" \
+  -d '[{"Port": 22, "Banner": "SSH-2.0-OpenSSH_9.6"}, {"Port": 80, "Banner": ""}]'
+```
+</details><br>
+
+
+```http
 GET /api/edit/:id/:name/*known
 ```
 Edit host with ID `id`. Can change `name`. `known` is optional, when set to `toggle` will change Known state.

@@ -1,11 +1,12 @@
-import { createSignal, For, Show } from "solid-js";
-import { apiGetBanner, apiPortScan } from "../../functions/api";
+import { createEffect, createSignal, For, Show } from "solid-js";
+import { apiGetBanner, apiPortScan, apiSavePortScan } from "../../functions/api";
 import { cardBodyClass, cardClass, cardHeaderClass, inputClass, primaryBtnClass, secondaryBtnClass } from "../Config/formStyles";
 import { getWellKnownPortName } from "../../functions/wellKnownPorts";
 
 function Ping(_props: any) {
 
   let stop = false;
+  let lastLoadedHostId: number | undefined;
 
   const [beginStr, setBegin] = createSignal("");
   const [endStr, setEnd] = createSignal("");
@@ -16,16 +17,58 @@ function Ping(_props: any) {
   // in the background per found port instead of blocking the scan loop. undefined = not
   // fetched yet, "" = fetched but nothing came back, non-empty = the banner text.
   const [banners, setBanners] = createSignal<Record<number, string | undefined>>({});
+  // When this scan's results were last saved (either loaded from a previous scan, or just
+  // persisted after finishing a fresh one) - empty means this host has never been scanned.
+  const [scannedAt, setScannedAt] = createSignal("");
+  const [saving, setSaving] = createSignal(false);
+
+  // Load a host's previously saved scan results whenever the host prop (re)loads or changes -
+  // e.g. arriving fresh on the page, or navigating from one host's detail page to another's.
+  // Skipped while a scan of this host is actively running, so it doesn't clobber live progress.
+  createEffect(() => {
+    const host = _props.host;
+    if (!host?.ID || host.ID === lastLoadedHostId || curPort() !== "") {
+      return;
+    }
+    lastLoadedHostId = host.ID;
+
+    const cachedPorts = host.PortScan?.Ports ?? [];
+    setFoundPorts(cachedPorts.map((p: any) => p.Port));
+    const cachedBanners: Record<number, string | undefined> = {};
+    for (const p of cachedPorts) {
+      cachedBanners[p.Port] = p.Banner ?? "";
+    }
+    setBanners(cachedBanners);
+    setScannedAt(host.PortScan?.ScannedAt ?? "");
+  });
 
   const fetchBanner = async (port: number) => {
     const banner = await apiGetBanner(_props.IP, port);
     setBanners(prev => ({ ...prev, [port]: banner || "" }));
+    return banner;
+  };
+
+  const persistResults = async () => {
+    if (!_props.host?.ID) {
+      return;
+    }
+    setSaving(true);
+    try {
+      const ports = foundPorts().map(port => ({ Port: port, Banner: banners()[port] ?? "" }));
+      const updated = await apiSavePortScan(_props.host.ID, ports);
+      setScannedAt(updated?.PortScan?.ScannedAt ?? "");
+    } catch (err) {
+      console.error("Failed to save port scan results", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleScan = async () => {
     stop = false;
     setFoundPorts([]);
     setBanners({});
+    setScannedAt("");
 
     let begin = Number(beginStr());
     if (Number.isNaN(begin) || begin < 1 || begin > 65535) {
@@ -35,6 +78,8 @@ function Ping(_props: any) {
     if (Number.isNaN(end) || end < 1 || end > 65535) {
       end = 65535;
     }
+
+    const bannerFetches: Promise<string>[] = [];
 
     let portOpened:boolean;
     for (let i = begin ; i <= end; i++) {
@@ -46,8 +91,18 @@ function Ping(_props: any) {
       portOpened = await apiPortScan(_props.IP, i);
       if (portOpened) {
         setFoundPorts([...foundPorts(), i]);
-        fetchBanner(i); // fire-and-forget, doesn't block the scan
+        bannerFetches.push(fetchBanner(i)); // fire-and-forget, doesn't block the scan
       }
+    }
+
+    // Only persist a scan that ran to completion (not one that's merely paused) - and wait
+    // for any still-in-flight banner grabs first, so they're included in what gets saved.
+    // curPort is only cleared here too, so a paused scan still shows the Stop/Continue
+    // control with the port it left off at, exactly as before this feature was added.
+    if (!stop) {
+      setCurPort("");
+      await Promise.all(bannerFetches);
+      await persistResults();
     }
   };
 
@@ -75,6 +130,11 @@ function Ping(_props: any) {
           <div class="flex items-center justify-between mt-3 text-sm text-slate-500 dark:text-slate-400">
             <button type="button" onClick={handleStop} class={secondaryBtnClass}>Stop/Continue</button>
             <div>Scanning port: {curPort()}</div>
+          </div>
+        </Show>
+        <Show when={curPort() == "" && (scannedAt() || saving())}>
+          <div class="mt-3 text-xs text-slate-400 dark:text-slate-500 italic">
+            {saving() ? "Ergebnisse werden gespeichert…" : "Zuletzt gescannt: " + scannedAt()}
           </div>
         </Show>
         <div class="flex flex-col gap-1.5 mt-3">

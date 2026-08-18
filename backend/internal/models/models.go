@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"strings"
 )
 
@@ -45,6 +46,65 @@ func (t *TagList) Scan(value any) error {
 		}
 	}
 	*t = out
+	return nil
+}
+
+// PortScanEntry is a single open port found by a port scan, with whatever
+// greeting/banner text (if any) was grabbed from it.
+type PortScanEntry struct {
+	Port   int
+	Banner string
+}
+
+// PortScanResult is a host's most recent port scan: when it ran and what it
+// found. It is stored in the DB as a single JSON TEXT column, so a host can
+// show its last scan results (with an "as of" timestamp) without re-scanning
+// every time its detail page is opened.
+type PortScanResult struct {
+	ScannedAt string // empty if the host was never scanned
+	Ports     []PortScanEntry
+}
+
+// Value implements driver.Valuer, encoding the result as JSON. A never-scanned
+// host (the zero value) is stored as an empty string rather than "null"/"{}",
+// so it round-trips cleanly through Scan below.
+func (p PortScanResult) Value() (driver.Value, error) {
+	if p.ScannedAt == "" && len(p.Ports) == 0 {
+		return "", nil
+	}
+	b, err := json.Marshal(p)
+	if err != nil {
+		return nil, err
+	}
+	return string(b), nil
+}
+
+// Scan implements sql.Scanner, decoding the stored JSON back into a
+// PortScanResult. Malformed or empty data just yields the zero value
+// (never scanned) rather than failing the whole host load.
+func (p *PortScanResult) Scan(value any) error {
+	var raw string
+	switch v := value.(type) {
+	case string:
+		raw = v
+	case []byte:
+		raw = string(v)
+	default:
+		*p = PortScanResult{}
+		return nil
+	}
+
+	if raw == "" {
+		*p = PortScanResult{}
+		return nil
+	}
+
+	var out PortScanResult
+	if err := json.Unmarshal([]byte(raw), &out); err != nil {
+		*p = PortScanResult{}
+		return nil
+	}
+	*p = out
 	return nil
 }
 
@@ -93,6 +153,8 @@ type Host struct {
 	Known int     `gorm:"column:KNOWN"`
 	Now   int     `gorm:"column:NOW"`
 	Tags  TagList `gorm:"column:GROUPNAME"`
+
+	PortScan PortScanResult `gorm:"column:PORTSCAN"`
 }
 
 // Stat - status
