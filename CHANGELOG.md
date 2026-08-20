@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 ### Planned
 - Config-based MAC vendor overrides: let users map custom MAC prefixes to their own names for hosts the OUI database can't identify (homemade hardware, Proxmox VMs, ...) - see upstream [#185](https://github.com/aceberg/WatchYourLAN/issues/185)
 
+## [Fork 2.10.0] - 2026-08-20
+### Added
+- Bulk edit mode ("Bearbeiten") on the host list: select multiple hosts and run a port scan across all of them at once, with an optional port range, live per-host progress, and a Stop button. Results are saved per host the same way as a single-host scan on its detail page, so reopening any of them afterwards shows the freshly scanned ports as cached.
+
 ## [Fork 2.9.3] - 2026-08-20
 ### Changed
 - Host detail page: the tag autocomplete dropdown now preselects its first entry as soon as it has any matches, so pressing Enter accepts it immediately without needing to press Down first - same as a browser address bar.
