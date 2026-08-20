@@ -72,17 +72,23 @@ function TagsEditor(_props: any) {
     setDropdownOpen(false);
   };
 
+  // Highlights the first suggestion (if any) so Enter can accept it right away -
+  // without first pressing Down - the same way a browser address bar autocompletes.
+  const preselectFirst = () => {
+    setHighlightedIndex(availableTags().length > 0 ? 0 : -1);
+  };
+
   const handleTagInput = (value: string) => {
     setNewTag(value);
-    // The suggestion list is about to change (different filter query), so any
-    // previous highlight no longer points at a meaningful item.
-    setHighlightedIndex(-1);
     // Show the autocomplete suggestions as soon as there's something to
     // match against; an empty field falls back to the full tag list, so
     // leave the dropdown as-is rather than forcing it shut mid-edit.
     if (value.trim() !== "") {
       setDropdownOpen(true);
     }
+    // The suggestion list just changed (different filter query) - re-highlight
+    // the new first match rather than keeping a now-meaningless old index.
+    preselectFirst();
   };
 
   // Scroll the highlighted suggestion into view as Up/Down moves past the
@@ -102,6 +108,7 @@ function TagsEditor(_props: any) {
       e.preventDefault();
       if (!dropdownOpen()) {
         setDropdownOpen(true);
+        preselectFirst();
         return;
       }
       if (items.length > 0) {
@@ -170,12 +177,20 @@ function TagsEditor(_props: any) {
           placeholder="Tag hinzufügen..."
           title="Neuen Tag eingeben und Enter drücken"
           onInput={e => handleTagInput((e.target as HTMLInputElement).value)}
-          onFocus={() => { if (newTag().trim() !== "") setDropdownOpen(true); }}
+          onFocus={() => { if (newTag().trim() !== "") { setDropdownOpen(true); preselectFirst(); } }}
           onKeyDown={handleKeyDown}
         ></input>
         <button
           type="button"
-          onClick={() => { setDropdownOpen(o => !o); setHighlightedIndex(-1); }}
+          onClick={() => {
+            const opening = !dropdownOpen();
+            setDropdownOpen(opening);
+            if (opening) {
+              preselectFirst();
+            } else {
+              setHighlightedIndex(-1);
+            }
+          }}
           title="Vorhandene Tags auswählen"
           class="w-8 h-8 shrink-0 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
         >
