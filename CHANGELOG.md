@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 ### Planned
 - Config-based MAC vendor overrides: let users map custom MAC prefixes to their own names for hosts the OUI database can't identify (homemade hardware, Proxmox VMs, ...) - see upstream [#185](https://github.com/aceberg/WatchYourLAN/issues/185)
 
+## [Fork 2.9.2] - 2026-08-20
+### Added
+- Host detail page: the tag autocomplete dropdown can now be navigated with Up/Down (wraps around at either end, scrolling the highlighted entry into view), Enter picks the highlighted suggestion, and Escape closes it. Enter with nothing highlighted still adds whatever's typed as a brand new tag, as before.
+
 ## [Fork 2.9.1] - 2026-08-20
 ### Added
 - Host detail page: Left/Right arrow keys now also step to the previous/next device, same as the "← Vorheriges" / "Nächstes →" buttons. Disabled while typing in a text field (device name, tags, port range, history date), so it doesn't interfere with normal editing.

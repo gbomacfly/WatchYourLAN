@@ -19,8 +19,12 @@ function TagsEditor(_props: any) {
   const [hostTags, setHostTags] = createSignal<string[]>([]);
   const [newTag, setNewTag] = createSignal("");
   const [dropdownOpen, setDropdownOpen] = createSignal(false);
+  // -1 = nothing highlighted (Enter then adds whatever's typed as a new tag);
+  // 0..n-1 indexes into availableTags() (Enter then picks that suggestion instead).
+  const [highlightedIndex, setHighlightedIndex] = createSignal(-1);
 
   let containerRef: HTMLDivElement | undefined;
+  let dropdownRef: HTMLDivElement | undefined;
 
   // Keep the local, editable tag list in sync whenever the host prop
   // (re)loads - e.g. once HostPage's async apiGetHost() call resolves.
@@ -70,6 +74,9 @@ function TagsEditor(_props: any) {
 
   const handleTagInput = (value: string) => {
     setNewTag(value);
+    // The suggestion list is about to change (different filter query), so any
+    // previous highlight no longer points at a meaningful item.
+    setHighlightedIndex(-1);
     // Show the autocomplete suggestions as soon as there's something to
     // match against; an empty field falls back to the full tag list, so
     // leave the dropdown as-is rather than forcing it shut mid-edit.
@@ -78,12 +85,48 @@ function TagsEditor(_props: any) {
     }
   };
 
+  // Scroll the highlighted suggestion into view as Up/Down moves past the
+  // currently visible part of the (possibly scrollable) dropdown.
+  createEffect(() => {
+    const idx = highlightedIndex();
+    if (idx < 0 || !dropdownRef) {
+      return;
+    }
+    dropdownRef.querySelector(`[data-idx="${idx}"]`)?.scrollIntoView({ block: "nearest" });
+  });
+
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Enter") {
+    const items = availableTags();
+
+    if (e.key === "ArrowDown") {
       e.preventDefault();
-      handleAddCustom();
+      if (!dropdownOpen()) {
+        setDropdownOpen(true);
+        return;
+      }
+      if (items.length > 0) {
+        setHighlightedIndex(i => (i + 1) % items.length);
+      }
+    } else if (e.key === "ArrowUp") {
+      if (!dropdownOpen() || items.length === 0) {
+        return;
+      }
+      e.preventDefault();
+      setHighlightedIndex(i => (i - 1 + items.length) % items.length);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const idx = highlightedIndex();
+      if (dropdownOpen() && idx >= 0 && idx < items.length) {
+        addTag(items[idx]);
+        setNewTag("");
+        setDropdownOpen(false);
+        setHighlightedIndex(-1);
+      } else {
+        handleAddCustom();
+      }
     } else if (e.key === "Escape") {
       setDropdownOpen(false);
+      setHighlightedIndex(-1);
     }
   };
 
@@ -132,7 +175,7 @@ function TagsEditor(_props: any) {
         ></input>
         <button
           type="button"
-          onClick={() => setDropdownOpen(o => !o)}
+          onClick={() => { setDropdownOpen(o => !o); setHighlightedIndex(-1); }}
           title="Vorhandene Tags auswählen"
           class="w-8 h-8 shrink-0 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
         >
@@ -140,18 +183,24 @@ function TagsEditor(_props: any) {
         </button>
 
         <Show when={dropdownOpen()}>
-          <div class="absolute right-0 top-full mt-1 z-10 w-48 max-h-56 overflow-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg py-1">
+          <div ref={dropdownRef} class="absolute right-0 top-full mt-1 z-10 w-48 max-h-56 overflow-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg py-1">
             <Show when={availableTags().length > 0} fallback={
               <div class="px-3 py-1.5 text-xs text-slate-400 dark:text-slate-500 italic">
                 {newTag().trim() !== "" ? "Keine passenden Tags" : "Keine weiteren Tags"}
               </div>
             }>
               <For each={availableTags()}>
-                {(tag) => (
+                {(tag, index) => (
                   <button
                     type="button"
-                    onClick={() => { addTag(tag); setDropdownOpen(false); }}
-                    class="block w-full text-left px-3 py-1.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    data-idx={index()}
+                    onClick={() => { addTag(tag); setNewTag(""); setDropdownOpen(false); setHighlightedIndex(-1); }}
+                    onMouseEnter={() => setHighlightedIndex(index())}
+                    class={"block w-full text-left px-3 py-1.5 text-sm " + (
+                      highlightedIndex() === index()
+                        ? "bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300"
+                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    )}
                   >
                     {tag}
                   </button>
