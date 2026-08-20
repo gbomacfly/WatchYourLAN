@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "@solidjs/router";
-import { createResource, Show } from "solid-js";
+import { createResource, onCleanup, onMount, Show } from "solid-js";
 
 import { apiGetHost } from "../functions/api";
 import { allHosts, Host } from "../functions/exports";
@@ -50,6 +50,41 @@ function HostPage() {
     return apiGetHost(id);
   });
 
+  // Left/Right arrow keys step to the previous/next device, same as the buttons - but
+  // only when focus isn't in a text field, so typing a device name, a tag, a port
+  // range, or picking a history date doesn't accidentally navigate away.
+  onMount(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target?.isContentEditable) {
+        return;
+      }
+
+      const host = currentHost();
+      if (!host) {
+        return;
+      }
+
+      if (e.key === "ArrowLeft") {
+        const h = prevHost(host);
+        if (h) {
+          e.preventDefault();
+          navigate("/host/" + h.ID);
+        }
+      } else if (e.key === "ArrowRight") {
+        const h = nextHost(host);
+        if (h) {
+          e.preventDefault();
+          navigate("/host/" + h.ID);
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
+  });
+
   return (
     <Show when={currentHost()} fallback={<div class="text-sm text-slate-400 dark:text-slate-500">Lade...</div>}>
       {(host) => (
@@ -59,7 +94,7 @@ function HostPage() {
               type="button"
               disabled={!prevHost(host())}
               onClick={() => { const h = prevHost(host()); if (h) navigate("/host/" + h.ID); }}
-              title={prevHost(host())?.Name ? "Vorheriges Gerät: " + prevHost(host())!.Name : "Vorheriges Gerät"}
+              title={(prevHost(host())?.Name ? "Vorheriges Gerät: " + prevHost(host())!.Name : "Vorheriges Gerät") + " (←)"}
               class={secondaryBtnClass + " disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"}
             >
               ← Vorheriges
@@ -73,7 +108,7 @@ function HostPage() {
               type="button"
               disabled={!nextHost(host())}
               onClick={() => { const h = nextHost(host()); if (h) navigate("/host/" + h.ID); }}
-              title={nextHost(host())?.Name ? "Nächstes Gerät: " + nextHost(host())!.Name : "Nächstes Gerät"}
+              title={(nextHost(host())?.Name ? "Nächstes Gerät: " + nextHost(host())!.Name : "Nächstes Gerät") + " (→)"}
               class={secondaryBtnClass + " disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"}
             >
               Nächstes →

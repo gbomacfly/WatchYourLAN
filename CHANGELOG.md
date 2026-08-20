@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 ### Planned
 - Config-based MAC vendor overrides: let users map custom MAC prefixes to their own names for hosts the OUI database can't identify (homemade hardware, Proxmox VMs, ...) - see upstream [#185](https://github.com/aceberg/WatchYourLAN/issues/185)
 
+## [Fork 2.9.1] - 2026-08-20
+### Added
+- Host detail page: Left/Right arrow keys now also step to the previous/next device, same as the "← Vorheriges" / "Nächstes →" buttons. Disabled while typing in a text field (device name, tags, port range, history date), so it doesn't interfere with normal editing.
+
 ## [Fork 2.9.0] - 2026-08-20
 ### Added
 - Host detail page: "← Vorheriges" / "Nächstes →" buttons to step through devices without going back to the Übersicht table, plus a "current position / total" indicator. Follows whatever order the table is currently sorted/filtered to, not raw ID order - the arrows disable themselves at the first/last device.
